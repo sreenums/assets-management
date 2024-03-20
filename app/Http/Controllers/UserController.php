@@ -3,16 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Services\AssetService;
+use App\Services\AssetParameterService;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    protected $assetService;
+    protected $assetParameterService;
 
-    public function __construct(AssetService $assetService)
+    public function __construct(AssetParameterService $assetParameterService)
     {
-        $this->assetService = $assetService;
+        $this->assetParameterService = $assetParameterService;
     }
 
 
@@ -21,7 +21,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = $this->assetService->showUsers();
+        $users = $this->assetParameterService->showUsers();
         
         return view('user-home', compact('users'));
     }
@@ -39,7 +39,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $user = $this->assetService->addUser($request);
+        $user = $this->assetParameterService->addUser($request);
         
         return response()->json(['message' => 'Data has been saved!', 'type' => $request->assetUser, 'id' => $user->id, 'emailId' => $user->email ]);
     }
@@ -65,7 +65,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $this->assetService->updateUser($request, $user);
+        $this->assetParameterService->updateUser($request, $user);
 
         return response()->json(['message' => 'User has been updated successfully!']);
     }
@@ -75,8 +75,9 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        $this->assetService->deleteUser($user);
+        $this->assetParameterService->deleteUser($user);
 
         return response()->json(['success' => 'Type Deleted Successfully!']);
     }
+    
 }

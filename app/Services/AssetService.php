@@ -2,255 +2,66 @@
 
 namespace App\Services;
 
-use App\Models\Type;
-use App\Repositories\AssetTypeRepository;
+use App\Repositories\AssetRepository;
 use App\Repositories\HardwareStandardRepository;
-use App\Repositories\LocationRepository;
-use App\Repositories\UserRepository;
+use App\Repositories\TechnicalSpecsRepository;
 
 class AssetService
 {
-    protected $assetTypeRepository;
+    protected $assetRepository;
     protected $hardwareStandardRepository;
-    protected $locationRepository;
-    protected $userRepository;
+    protected $technicalSpecsRepository;
 
-    public function __construct(AssetTypeRepository $assetTypeRepository, HardwareStandardRepository $hardwareStandardRepository, LocationRepository $locationRepository, UserRepository $userRepository)
+    public function __construct(AssetRepository $assetRepository, HardwareStandardRepository $hardwareStandardRepository, TechnicalSpecsRepository $technicalSpecsRepository)
     {
-        $this->assetTypeRepository = $assetTypeRepository;
+        $this->assetRepository = $assetRepository;
         $this->hardwareStandardRepository = $hardwareStandardRepository;
-        $this->locationRepository = $locationRepository;
-        $this->userRepository = $userRepository;
+        $this->technicalSpecsRepository = $technicalSpecsRepository;
     }
 
     /**
-     * Show Assets types
+     * Get list of hardware standards for an asset type
      * 
+     * @param $request - form request data(assetType)
      */
-    public function showAssetTypes()
+    public function getHardwareStandardWithType($request)
     {
-       return $this->assetTypeRepository->showAssetTypes();
+        return $this->hardwareStandardRepository->getHardwareStandardWithType($request);
     }
-    
-    /**
-     * Add Assets type to the storage
-     * 
-     * @param $request - form request data
-     */
-    public function addType($request)
+
+    public function getTechnicalSpecsWithHardwareStandard($request)
     {
-        $validatedData = $request->validate([
-            'assetType' => 'required|string|max:255',
-        ]);
+        return $this->technicalSpecsRepository->getTechnicalSpecsWithHardwareStandard($request);
+    }
 
-        $data = ['type' => $request->assetType];
-
-        return $this->assetTypeRepository->addType($data);
+    public function createAsset($request)
+    {
+        $assetData = $this->getAssetCreateData($request);
+        return $this->assetRepository->createAsset($assetData);
     }
 
     /**
-     * Update Asset type
+     * Generate the post data
      * 
-     * @param $request - form request data
-     * @param $type - asset type object
+     * @param $request Form data
      */
-    public function updateType($request, $type)
-    {
-        $typeData = [
-            'type' => $request->editAssetType,
+    public function getAssetCreateData($request)
+    {   
+        return [
+            'type_id' => $request->assetType,
+            'hardware_standard_id' => $request->hardwareStandard,
+            'technical_specification_id' => $request->technicalSpec,
+            'location_id' => $request->assetLocation,
+            'asset_tag' => $request->assetTag,
+            'serial_no' => $request->serialNo,
+            'purchase_order' => $request->purchasingOrder,
+            'status' => $request->assetStatus,
         ];
-
-        return $type = $this->assetTypeRepository->updateType($type, $typeData);
     }
 
-    /**
-     * Delete Asset type
-     * 
-     * @param $type - asset type object
-     */
-    public function deleteType($type)
+    public function getAssetsListWithTypeHardwareStandardTechnicalSpecAndStatus()
     {
-        return $this->assetTypeRepository->deleteType($type);
-    }
-
-
-    /**
-     * Hardware Standards Services 
-     * 
-     */
-
-     /**
-      * Get list of Hardware Standards
-      * 
-      */
-     public function showHardwareStandard()
-     {
-        return $this->hardwareStandardRepository->showHardwareStandard();
-     }
-
-     /**
-      * Add Hardware Standard to storage
-      *
-      * @param $request - form request data
-      */
-     public function addHardwareStandard($request)
-     {
-        $validatedData = $request->validate([
-            'assetHardwareStandard' => 'required|string|max:255',
-            'assetType' => 'required|string|max:255',
-        ]);
-
-        $data = ['description' => $request->assetHardwareStandard
-        , 'type_id' => $request->assetType];
-
-        return $this->hardwareStandardRepository->addHardwareStandard($data);
-     }
-
-     /**
-      * Delete Hardware Standard from storage
-      *
-      * @param $hardwareStandard - hardware standard object
-      */
-     public function deleteHardwareStandard($hardwareStandard)
-     {
-         return $this->hardwareStandardRepository->deleteHardwareStandard($hardwareStandard);
-     }
-
-     /**
-      * Update Hardware Standard to storage
-      *
-      * @param $request - form request data
-      * @param $hardwareStandard - hardware standard object
-      */
-     public function updateHardwareStandard($request, $hardwareStandard)
-     {
-         $hardwareStandardData = [
-             'description' => $request->editHardwareStandard,
-             'type_id' => $request->assetTypeEdit,
-         ];
- 
-         return $type = $this->hardwareStandardRepository->updateHardwareStandard($hardwareStandard, $hardwareStandardData);
-     }
-
-
-    /**
-     * Location services
-    *
-    */
-
-    /**
-     * Get list of Locations
-     */
-    public function showLocations()
-    {
-        return $this->locationRepository->showLocations();
-    }
-
-    /**
-     * Add Location to storage
-     * 
-     * @param $request - form request data
-     */
-    public function addLocation($request)
-    {
-        $validatedData = $request->validate([
-            'assetLocation' => 'required|string|max:255',
-        ]);
-
-        $data = ['name' => $request->assetLocation];
-
-        return $this->locationRepository->addLocation($data);
-    }
-
-    /**
-     * Delete Location from storage
-     * 
-     * @param $location - Location object
-     */
-    public function deleteLocation($location)
-    {
-        return $this->locationRepository->deleteLocation($location);
-    }
-
-    /**
-     * Update Location to storage
-     * 
-     * @param $request - form request data
-     * @param $location - Location object
-     */
-    public function updateLocation($request, $location)
-    {
-    $validatedData = $request->validate([
-        'editLocation' => 'required|string|max:255',
-    ]);
-
-    $locationData = [
-        'name' => $request->editLocation,
-    ];
-
-    return $type = $this->locationRepository->updateLocation($location, $locationData);
-    }
-
-
-    /**
-     * User services
-     */
-
-    /**
-     * Show list of users
-     * 
-     */
-    public function showUsers()
-    {
-        return $this->userRepository->showUsers();
-    }
-
-    /**
-     * Add User to storage
-     * 
-     * @param $request - form request data
-     */
-    public function addUser($request)
-    {
-        $validatedData = $request->validate([
-            'assetUser' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-        ]);
-
-        $data = ['name' => $request->assetUser, 'email' => $request->email];
-
-        return $this->userRepository->addUser($data);
-    }
-
-    /**
-     * Delete User from storage
-     * 
-     * @param $location - Location object
-     */
-    public function deleteUser($location)
-    {
-        return $this->userRepository->deleteUser($location);
-    }
-
-    /**
-     * Update User to storage
-     * 
-     * @param $request - form request data
-     * @param $user - User object
-     */
-    public function updateUser($request, $user)
-    {
-        $validatedData = $request->validate([
-            'editUserName' => 'required|string|max:255',
-            'editEmail' => 'required|email|max:255',
-        ]);
-
-        $userData = [
-            'name' => $request->editUserName,
-            'email' => $request->editEmail,
-        ];
-
-        return $type = $this->userRepository->updateUser($user, $userData);
+        return $this->assetRepository->getAssetsListWithTypeHardwareStandardTechnicalSpecAndStatus();
     }
 
 

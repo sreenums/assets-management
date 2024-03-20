@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetManagementController;
 use App\Http\Controllers\AssetParameterController;
 use App\Http\Controllers\AssetTypeController;
@@ -36,9 +37,6 @@ Route::get('/assets-type-add', function () {
 Route::get('/assets-type-home', function () {
     return view('type-home');
 })->name('type.home');
-// Route::get('/assets-type-home', [AssetParameterController::class, 'index'])->name('type.home');
-
-// Route::post('/save-type', [AssetParameterController::class, 'saveTypeData'])->name('save.type');
 
 Route::get('/assets-type-home', [AssetTypeController::class, 'index'])->name('type.home');
 // Route::put('/assets-type-home', [AssetTypeController::class, 'index'])->name('type.home');
@@ -72,10 +70,10 @@ Route::resource('/users', UserController::class);
  * For Assets management
  * 
  */
-Route::resource('/assets', AssetManagementController::class);
+Route::resource('/assets', AssetController::class);
 
 //For Hardware with type
-Route::post('/type-hardware-standard',[AssetManagementController::class, 'getHardwareStandardWithType'])->name('get.type.hardwares');
+Route::post('/type-hardware-standard',[AssetController::class, 'getHardwareStandardWithType'])->name('get.type.hardwares');
 //For Technical spec with hardware standard
-Route::post('/hardware-technical-spec',[AssetManagementController::class, 'getTechnicalSpecsWithHardwareStandard'])->name('get.hardware.technical.spec');
+Route::post('/hardware-technical-spec',[AssetController::class, 'getTechnicalSpecsWithHardwareStandard'])->name('get.hardware.technical.spec');
 

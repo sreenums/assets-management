@@ -25,10 +25,9 @@ class StoreAssetRequest extends FormRequest
             'assetType' => 'required',
             'hardwareStandard' => 'required',
             'technicalSpec' => 'required',
-            'user' => 'required',           //check if user/location exists
-            'assetLocation' => 'required',  //check if user/location exists
-            'assetTag' => 'required',       //chk if unique
-            'serialNo' => 'required',       //chk
+            'assetLocation' => 'required',
+            'assetTag' => 'required|unique:assets,asset_tag',       //chk if unique
+            'serialNo' => 'required|unique:assets,serial_no',       //chk if unique
             'purchasingOrder' => 'required',
             'assetStatus' => 'required',
         ];

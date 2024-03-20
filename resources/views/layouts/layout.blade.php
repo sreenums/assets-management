@@ -55,7 +55,7 @@
     <div class="collapse navbar-collapse" id="navbarsExampleDefault">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-          <a class="nav-link" href="{{ route('home'); }}">Assets Management</a>
+          <a class="nav-link" href="{{ route('assets.index'); }}">Assets Management</a>
         </li>
         <li class="nav-item active">
           <a class="nav-link" href="{{ route('asset.parameters'); }}">Assets Parameters</a>

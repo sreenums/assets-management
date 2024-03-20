@@ -22,7 +22,7 @@
   <h2>Add New Asset</h2>
 
 
-  <form method="POST" id="assetForm" class="was-validated" style="border: 1px solid #ccc; padding: 20px;" action="#" enctype="multipart/form-data">
+  <form method="POST" id="assetForm" class="was-validated" style="border: 1px solid #ccc; padding: 20px;" action="{{ route('assets.store'); }}" enctype="multipart/form-data">
     @csrf
     <div class="col-md-6">
       <label for="assetType" class="form-label">Type</label>      
@@ -60,21 +60,6 @@
     </div>
 
     <div class="col-md-6 mt-2">
-      <label for="user" class="form-label">User</label>
-      <select id="user" name="user" class="form-select" required>
-        <option selected value="">--Select-- </option>
-
-        @foreach ($users as $user)
-        <option value="{{ $user->id }} ">{{ $user->name }} </option>
-        @endforeach
-
-      </select>
-      @if ($errors->has('user'))
-        <div class="validation-error">Please select user.</div>
-      @endif
-    </div>
-
-    <div class="col-md-6 mt-2">
       <label for="assetLocation" class="form-label">Location</label>
       <select id="assetLocation" name="assetLocation" class="form-select" required>
         
@@ -93,7 +78,7 @@
       <label for="assetTag" class="form-label">Asset tag</label>
       <input type="text" class="form-control" id="assetTag" name="assetTag" maxlength="150" required>
       @if ($errors->has('assetTag'))
-        <div class="validation-error">Please fill out this field.</div>
+        <div class="validation-error">{{ $errors->first('assetTag') }}</div>
       @endif
     </div>
 
@@ -101,7 +86,7 @@
       <label for="serialNo" class="form-label">Serial No</label>
       <input type="text" class="form-control" id="serialNo" name="serialNo" maxlength="150" required>
       @if ($errors->has('serialNo'))
-        <div class="validation-error">Please fill out this field.</div>
+        <div class="validation-error">{{ $errors->first('serialNo') }}</div>
       @endif
     </div>
 
@@ -116,10 +101,10 @@
     <div class="col-md-3 mt-2">
       <label for="assetStatus" class="form-label">Status</label>
       <select id="assetStatus" name="assetStatus" class="form-select" required>
-        <option selected value="">--Select--</option>
-        <option value="1">Brand New</option>
-        <option value="2">Assigned</option>
-        <option value="3">Damaged</option>
+        <option value="">--Select--</option>
+        <option value="1" selected>Brand New</option>
+        <!--<option value="2">Assigned</option>
+        <option value="3">Damaged</option>-->
       </select>
     </div>
 
@@ -209,27 +194,26 @@
       });
 
 
+      // $(document).on('change','#user', function() {
+      // let user = $(this).val(); //alert(user);
+      // if (user !== '') {
+      //     //$("#assetLocation").html("<option value=''>User Selected</option>");
+      //     $("#assetLocation").prop('disabled', true); 
+      // } else {
+      //     // If no user is selected, remove readonly
+      //     $("#assetLocation").prop('disabled', false);
+      // }
+      // });
 
-      $(document).on('change','#user', function() {
-      let user = $(this).val(); //alert(user);
-      if (user !== '') {
-          //$("#assetLocation").html("<option value=''>User Selected</option>");
-          $("#assetLocation").prop('disabled', true); 
-      } else {
-          // If no user is selected, remove readonly
-          $("#assetLocation").prop('disabled', false);
-      }
-      });
 
-
-      $(document).on('change','#assetLocation', function() {
-      let assetLocation = $(this).val();
-      if (assetLocation !== '') {
-          $("#user").prop('disabled', true); 
-      } else {
-          $("#user").prop('disabled', false);
-      }
-      });
+      // $(document).on('change','#assetLocation', function() {
+      // let assetLocation = $(this).val();
+      // if (assetLocation !== '') {
+      //     $("#user").prop('disabled', true); 
+      // } else {
+      //     $("#user").prop('disabled', false);
+      // }
+      // });
 
 
   });

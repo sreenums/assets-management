@@ -123,22 +123,6 @@
       </select>
     </div>
 
-    @if(isset($categories) && $categories != '[]')
-    <div class="col-md-6 mt-2">
-      Categories
-      <div class="row">
-          @foreach ($categories as $category)
-          <div class="col">
-              <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="{{ $category->id }}" id="{{ $category->id }}" name="categories[]" >
-                  <label class="form-check-label" for="{{ $category->id }}">{{ $category->category }}</label>
-              </div>
-          </div>
-          @endforeach
-      </div>
-    </div>
-    @endif
-
     <div class="col-12 mt-3">
       <button type="submit" class="btn btn-primary">Submit</button>
     </div>

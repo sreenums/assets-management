@@ -11,13 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('asset_management', function (Blueprint $table) {
+        Schema::create('assets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('type_id')->constrained();
             $table->foreignId('hardware_standard_id')->constrained();
             $table->foreignId('technical_specification_id')->constrained();
             $table->foreignId('location_id')->constrained();      //Location can be from locations table or from users table linked to location
-            $table->foreignId('user_id')->constrained();
+            //$table->foreignId('user_id')->constrained();
+            $table->string('asset_tag')->unique();
+            $table->string('serial_no')->unique();
+            $table->string('purchase_order')->nullable();
             $table->tinyInteger('status')->default(null)->comment('1: Brand New, 2: Assigned, 3: Damaged');
             $table->timestamps();
         });
@@ -28,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('asset_management');
+        Schema::dropIfExists('assets');
     }
 };

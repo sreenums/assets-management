@@ -4,25 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Models\TechnicalSpecifications;
 use App\Services\TechnicalSpecsService;
-use App\Services\AssetService;
+use App\Services\AssetParameterService;
 use Illuminate\Http\Request;
 
 class TechnicalSpecificationsController extends Controller
 {
 
     protected $technicalSpecsService;
-    protected $assetService;
+    protected $assetParameterService;
 
     /**
      * Constructs a new instance of the class.
      *
      * @param TechnicalSpecsService $technicalSpecsService The technical specifications service.
-     * @param AssetService $assetService The asset service.
+     * @param assetParameterService $assetParameterService The asset service.
      */
-    public function __construct(TechnicalSpecsService $technicalSpecsService, AssetService $assetService)
+    public function __construct(TechnicalSpecsService $technicalSpecsService, AssetParameterService $assetParameterService)
     {
         $this->technicalSpecsService = $technicalSpecsService;
-        $this->assetService = $assetService;
+        $this->assetParameterService = $assetParameterService;
     }
 
     /**
@@ -31,7 +31,7 @@ class TechnicalSpecificationsController extends Controller
     public function index()
     {
         $technicalSpecs = $this->technicalSpecsService->showTechnicalSpecs();
-        $hardwareStandards = $this->assetService->showHardwareStandard();
+        $hardwareStandards = $this->assetParameterService->showHardwareStandard();
         
         return view('technical-spec-home', compact('technicalSpecs','hardwareStandards'));
     }

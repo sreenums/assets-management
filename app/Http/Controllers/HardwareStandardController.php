@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\HardwareStandard;
-use App\Services\AssetService;
+use App\Services\AssetParameterService;
 use Illuminate\Http\Request;
 
 class HardwareStandardController extends Controller
 {
 
-    protected $assetService;
+    protected $assetParameterService;
 
-    public function __construct(AssetService $assetService)
+    public function __construct(AssetParameterService $assetParameterService)
     {
-        $this->assetService = $assetService;
+        $this->assetParameterService = $assetParameterService;
     }
 
     /**
@@ -21,8 +21,8 @@ class HardwareStandardController extends Controller
      */
     public function index()
     {
-        $hardwareStandards = $this->assetService->showHardwareStandard();
-        $assetTypes = $this->assetService->showAssetTypes();
+        $hardwareStandards = $this->assetParameterService->showHardwareStandard();
+        $assetTypes = $this->assetParameterService->showAssetTypes();
         //$hardwareStandard = HardwareStandard::getList();
         
         return view('hardware-home', compact('hardwareStandards','assetTypes'));
@@ -35,7 +35,7 @@ class HardwareStandardController extends Controller
      */
     public function store(Request $request)
     {
-        $type = $this->assetService->addHardwareStandard($request);
+        $type = $this->assetParameterService->addHardwareStandard($request);
         
         return response()->json(['message' => 'Data has been saved!', 'type' => $request->assetHardwareStandard, 'id' => $type->id, 'type_id' => $type->type_id ]);
     }
@@ -48,7 +48,7 @@ class HardwareStandardController extends Controller
      */
     public function update(Request $request, HardwareStandard $hardware_standard)
     {
-        $this->assetService->updateHardwareStandard($request, $hardware_standard);
+        $this->assetParameterService->updateHardwareStandard($request, $hardware_standard);
 
         return response()->json(['message' => 'Type has been updated successfully!']);
     }
@@ -60,7 +60,7 @@ class HardwareStandardController extends Controller
      */
     public function destroy(HardwareStandard $hardware_standard)
     {
-        $this->assetService->deleteHardwareStandard($hardware_standard);
+        $this->assetParameterService->deleteHardwareStandard($hardware_standard);
 
         return response()->json(['success' => 'Type Deleted Successfully!']);
     }

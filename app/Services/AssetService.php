@@ -19,6 +19,24 @@ class AssetService
         $this->technicalSpecsRepository = $technicalSpecsRepository;
     }
 
+
+    public function updateAsset($request, $asset)
+    {
+        
+        $assetData = [
+            'type_id' => $request->assetType,
+            'hardware_standard_id' => $request->hardwareStandard,
+            'technical_specification_id' => $request->technicalSpec,
+            'location_id' => $request->assetLocation,
+            'asset_tag' => $request->assetTag,
+            'serial_no' => $request->serialNo,
+            'purchase_order' => $request->purchasingOrder,
+            'status' => $request->assetStatus,
+        ];
+
+        return $type = $this->assetRepository->updateAsset($asset, $assetData);
+    }
+
     /**
      * Get list of hardware standards for an asset type
      * 
@@ -59,10 +77,41 @@ class AssetService
         ];
     }
 
-    public function getAssetsListWithTypeHardwareStandardTechnicalSpecAndStatus()
+    public function getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation()
     {
-        return $this->assetRepository->getAssetsListWithTypeHardwareStandardTechnicalSpecAndStatus();
+        return $this->assetRepository->getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation();
     }
 
+    public function FilterAsset($request, $assets)
+    {
+        return $this->assetRepository->FilterAsset($request, $assets);
+    }
+
+    /**
+     * Format data for data table
+     */
+    public function formatDataTable($assets)
+    {
+        return $assets->map(function($asset) {
+            return [
+                'id' => $asset->id,
+                'type' => $asset->type->type,
+                'hardware_standard' => $asset->hardwareStandard->description,
+                'technicalSpecification' => $asset->technicalSpecification->description,
+                'location' => $asset->location->name,
+                'status' => $asset->status,
+            ];
+        });
+    }
+
+    // public function editAsset($assetId)
+    // {
+    //     return $this->assetRepository->editAsset($assetId);
+    // }
+
+    public function getAssetWithTypeHardwareStandardTechnicalSpecStatusAndLocation($assetId)
+    {
+        return $this->assetRepository->getAssetWithTypeHardwareStandardTechnicalSpecStatusAndLocation($assetId);
+    }
 
 }

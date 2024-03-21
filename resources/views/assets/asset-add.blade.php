@@ -70,7 +70,7 @@
 
       </select>
       @if ($errors->has('assetLocation'))
-        <div class="validation-error">Please select date</div>
+        <div class="validation-error">Please select asset location</div>
       @endif
     </div>
 

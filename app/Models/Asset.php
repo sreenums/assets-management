@@ -40,4 +40,9 @@ class Asset extends Model
         return $this->belongsTo(TechnicalSpecifications::class);
     }
 
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
+    }
+
 }

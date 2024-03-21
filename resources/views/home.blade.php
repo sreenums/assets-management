@@ -72,6 +72,7 @@
                     <th>Type</th>
                     <th>Hardware Standard</th>
                     <th>Technical Specification</th>
+                    <th>Location</th>
                     <th>Status</th>
                     <th></th>
                     <th></th>
@@ -79,6 +80,9 @@
                 </tr>
             </thead>
         </table>
+        <br>
+        <br>
+        <br>
     </div>
 
   </main>
@@ -89,38 +93,33 @@
         $('#assets-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('assets.index') }}",
+            ajax: "{{ route('list.asset') }}",
             columns: [
                 { data: 'id', name: 'id' },
                 { data: 'type', name: 'type' },
                 { data: 'hardware_standard', name: 'hardware_standard' },
-                { data: 'date_published', name: 'datePublished' },
-                { data: 'comments_count', name: 'commentsCount',
-                    render: function(data, type, row) {
-                        return '<a href="#" class="view-comments-page" data-post-id="' + row.id + '">' + data + '</a>';
-                    }
-                },
-                { data: 'is_active', name: 'status' },
+                { data: 'technicalSpecification', name: 'technical_specification_id' },
+                { data: 'location', name: 'location_id' },
+                { data: 'status', name: 'status' },
                 {
                     data: 'id',
                     name: 'view',
                     render: function(data, type, row) {
-                            return '<a href="{{ route("posts.show", ["post" => ":postId"]) }}" id="view-user" class="btn btn-primary"> View </a>'.replace(':postId', row.id);
+                            return '<a href="{{ route("assets.show", ["asset" => ":assetId"]) }}" id="view-user" class="btn btn-primary"> View </a>'.replace(':assetId', row.id);
                     }
                 },
                 {
                     data: 'id',
                     name: 'edit',
                     render: function(data, type, row) {
-                            return '<a href="{{ route("posts.edit", ["post" => ":postId"]) }}" id="edit-user" class="btn btn-secondary"> Edit </a>'.replace(':postId', row.id);
+                            return '<a href="{{ route("assets.edit", ["asset" => ":assetId"]) }}" id="edit-user" class="btn btn-secondary"> Edit </a>'.replace(':assetId', row.id);
                     }
                 },
                 {
                     data: 'id',
                     name: 'delete',
                     render: function(data, type, row) {
-                        
-                            return '<a href="javascript:void(0)" id="delete-post" data-url="{{ route("posts.destroy", ["post" => ":postId"]) }}" class="btn btn-danger"> Delete </a>'.replace(':postId', row.id);
+                            return '<a href="javascript:void(0)" id="delete-asset" data-url="{{ route("assets.destroy", ["asset" => ":assetId"]) }}" class="btn btn-danger"> Delete </a>'.replace(':assetId', row.id);
                     }
                 }
             ],
@@ -131,10 +130,10 @@
 
         // $('#assets-table').on('click', '.view-comments-page', function(e) {
         //     e.preventDefault();
-        //     var postId = $(this).data('post-id');
+        //     var assetId = $(this).data('asset-id');
 
-        //     // Comments view with postId
-        //     loadComments(postId);
+        //     // Comments view with assetId
+        //     loadComments(assetId);
         // });
 
 
@@ -143,7 +142,7 @@
             var statusId = $('#postStatus').val();
             var commentsCount = $('#commentsCountPosts').val();
 
-            var url = "{{ route('posts.index') }}?";
+            var url = "{{ route('assets.index') }}?";
 
             if (authorId) {
                 url += "author=" + authorId + "&";
@@ -166,30 +165,6 @@
         //     handleFilterChange();
         // });
 
-        function loadComments(postId) {
-            $.ajax({
-                url: '/posts/' + postId + '/comments',
-                type: 'GET',
-                success: function(response) {
-                    var comments = response.comments;
-                    var commentsHtml = '';
-                    if (comments.length > 0) {
-                        commentsHtml += '<ul>';
-                        comments.forEach(function(comment) {
-                            commentsHtml += '<li>' + comment.comment + '</li><br>';
-                        });
-                        commentsHtml += '</ul>';
-                    } else {
-                        commentsHtml = 'No comments available.';
-                    }
-                    $('#commentsContainer').html(commentsHtml);
-                    $('#commentsModal').modal('show');
-                },
-                error: function(xhr, status, error) {
-                    console.error(xhr.responseText);
-                }
-            });
-        }
 
     });
 

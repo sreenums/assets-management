@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EditAssetRequest;
 use App\Http\Requests\StoreAssetRequest;
+use App\Models\Asset;
 use Illuminate\Http\Request;
 use App\Services\AssetParameterService;
 use App\Services\TechnicalSpecsService;
 use App\Services\AssetService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AssetController extends Controller
 {
@@ -27,35 +31,40 @@ class AssetController extends Controller
      */
     public function index(Request $request)
     {
-        $assets = $this->assetService->getAssetsListWithTypeHardwareStandardTechnicalSpecAndStatus();
         
-        if ($request->ajax()) {
-            
-            $assets = $this->assetService->getAssetsListWithTypeHardwareStandardTechnicalSpecAndStatus();
+        // if ($request->ajax()) {
 
-            dd($assets);
-            // Total records before filtering
-            // $totalRecords = $assets->count();
-            
-            // $posts = $this->assetService->FilterPost($request, $posts);
+        //     $assets = $this->assetService->getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation();
+    
+        //     // Total records before filtering
+        //     $totalRecords = $assets->count();
+    
+        //     $assets = $this->assetService->filterAsset($request, $assets);
+    
+        //     // Total records after filtering
+        //     $filteredRecords = $assets->count();
+        //     $assets = $assets->skip($request->input('start'))->take($request->input('length'));     //->get() removed
 
-            // // Total records after filtering
-            // $filteredRecords = $posts->count();
-            // $posts = $posts->skip($request->input('start'))->take($request->input('length'))->get();
 
-            // /**
-            //  * Format for datatable
-            //  * 
-            //  */
-            // $formattedData = $this->assetService->formatDataTable($posts);
+        //     // Apply pagination
+        //     // $start = $request->input('start', 0);
+        //     // $length = $request->input('length', 10); // Default page length
+        //     // $assets = $assets->slice($start)->take($length);
 
-            // // Return JSON response with data and counts
-            // return response()->json([
-            //     'data' => $formattedData,
-            //     'recordsTotal' => $totalRecords,
-            //     'recordsFiltered' => $filteredRecords,
-            // ]);
-        }
+        //     // /**
+        //     //  * Format for datatable
+        //     //  * 
+        //     //  */
+        //     $formattedData = $this->assetService->formatDataTable($assets);
+    
+        //     return response()->json([ 
+        //         'data' => $formattedData,
+        //         'recordsTotal' => $totalRecords,
+        //         'recordsFiltered' => $filteredRecords,
+        //     ]);
+
+        // }
+        $assets = $this->assetService->getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation();
 
         return view('home',compact('assets'));
     }
@@ -97,15 +106,25 @@ class AssetController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $asset = $this->assetService->getAssetWithTypeHardwareStandardTechnicalSpecStatusAndLocation($id);
+        $assetTypes = $this->assetParameterService->showAssetTypes();
+        $hardwareStandards = $this->assetParameterService->showHardwareStandard();
+        $technicalSpecs = $this->technicalSpecsService->showTechnicalSpecs();
+        $assetLocations = $this->assetParameterService->showLocations();
+        $users = $this->assetParameterService->showUsers();
+
+        return view('assets.asset-edit', compact('asset','assetTypes','assetLocations','hardwareStandards','technicalSpecs','users'));
+        //return view('assets-edit', compact('post','users','categories','selectedCategoryIds'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(EditAssetRequest $request, Asset $asset)
     {
-        //
+        $this->assetService->updateAsset($request, $asset);
+
+        return back()->withSuccess('Asset has been updated successfully!');
     }
 
     /**
@@ -145,6 +164,50 @@ class AssetController extends Controller
             'status' => 'success',
             'subTechnicalSpecs' => $subTechnicalSpecs,
         ]);
+    }
+
+
+    public function assetsList(Request $request)
+    {
+        // Log the incoming request
+        //Log::info('Incoming request:', ['request' => $request->all()]);
+        
+        if ($request->ajax()) {    // Log the incoming AJAX request
+            Log::info('Incoming AJAX request:', ['request' => $request->all()]);
+        
+            // Get assets list with required attributes
+            $assets = $this->assetService->getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation();
+        
+            // Total records before filtering
+            $totalRecords = $assets->count();
+        
+            // Filter assets based on request parameters
+            $assets = $this->assetService->filterAsset($request, $assets);
+        
+            // Total records after filtering
+            $filteredRecords = $assets->count();
+        
+            // Pagination
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 10); // Default page length
+            $assets = $assets->skip($start)->take($length)->get();
+        
+            // Format for datatable
+            $formattedData = $this->assetService->formatDataTable($assets);
+        
+            // Log the outgoing response
+            Log::info('Outgoing AJAX response:', [
+                'data' => $formattedData,
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $filteredRecords,
+            ]);
+        
+            return response()->json([ 
+                'data' => $formattedData,
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $filteredRecords,
+            ]);
+        }
     }
     
 }

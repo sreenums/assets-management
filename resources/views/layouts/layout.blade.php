@@ -50,7 +50,7 @@
 
   @section('optional-section')  
   <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand" href="{{ route('home'); }}">Home</a>
+    <a class="navbar-brand" href="{{ route('assets.index'); }}">Home</a>
 
     <div class="collapse navbar-collapse" id="navbarsExampleDefault">
       <ul class="navbar-nav mr-auto">

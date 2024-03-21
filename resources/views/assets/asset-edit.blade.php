@@ -21,13 +21,14 @@
   
   <h2>Edit Asset</h2>
 
-
-  <form method="POST" id="assetForm" class="was-validated" style="border: 1px solid #ccc; padding: 20px;" action="#" enctype="multipart/form-data">
+  <form method="POST" id="assetForm" class="was-validated" style="border: 1px solid #ccc; padding: 20px;" action="{{ route('assets.update', ['asset'=> $asset->id] ); }}" enctype="multipart/form-data">
     @csrf
+    @method('PUT')
+    
     <div class="col-md-6">
       <label for="assetType" class="form-label">Type</label>      
       <select id="assetType" name="assetType" class="form-select" required>
-        <option selected value="">--Select-- </option>
+        <option selected value="{{ $asset->type_id }}">{{ $asset->type->type }}</option>
         @foreach ($assetTypes as $assetType)
         <option value="{{ $assetType->id }} ">{{ $assetType->type }} </option>
         @endforeach
@@ -40,7 +41,7 @@
     <div class="col-md-6 mt-2">
       <label for="hardwareStandard" class="form-label">Hardware Standard</label>
       <select id="hardwareStandard" name="hardwareStandard" class="form-select" required>
-        <option selected value="">--Select Asset Type-- </option>
+        <option selected value="{{ $asset->hardware_standard_id }}">{{ $asset->hardwareStandard->description }}</option>
       </select>
 
       @if ($errors->has('hardwareStandard'))
@@ -51,7 +52,7 @@
     <div class="col-md-6 mt-2">
       <label for="technicalSpec" class="form-label">Technical Specification</label>
       <select id="technicalSpec" name="technicalSpec" class="form-select" required>
-        <option selected value="">--Select Hardware Standard-- </option>
+        <option selected value="{{ $asset->technical_specification_id }}">{{ $asset->technicalSpecification->description }}</option>
       </select>
 
       @if ($errors->has('technicalSpec'))
@@ -60,54 +61,39 @@
     </div>
 
     <div class="col-md-6 mt-2">
-      <label for="user" class="form-label">User</label>
-      <select id="user" name="user" class="form-select" required>
-        <option selected value="">--Select-- </option>
-
-        @foreach ($users as $user)
-        <option value="{{ $user->id }} ">{{ $user->name }} </option>
-        @endforeach
-
-      </select>
-      @if ($errors->has('user'))
-        <div class="validation-error">Please select user.</div>
-      @endif
-    </div>
-
-    <div class="col-md-6 mt-2">
       <label for="assetLocation" class="form-label">Location</label>
       <select id="assetLocation" name="assetLocation" class="form-select" required>
         
-        <option selected value="">--Select-- </option>
+        <option selected value="{{ $asset->location_id }}">{{ $asset->location->name }}</option>
         @foreach ($assetLocations as $assetLocation)
         <option value="{{ $assetLocation->id }} ">{{ $assetLocation->name }} </option>
         @endforeach
 
       </select>
       @if ($errors->has('assetLocation'))
-        <div class="validation-error">Please select date</div>
+        <div class="validation-error">Please select asset location</div>
       @endif
     </div>
 
     <div class="col-md-5 mt-2">
       <label for="assetTag" class="form-label">Asset tag</label>
-      <input type="text" class="form-control" id="assetTag" name="assetTag" maxlength="150" required>
+      <input type="text" class="form-control" id="assetTag" name="assetTag" maxlength="150" value="{{ $asset->asset_tag }}" required>
       @if ($errors->has('assetTag'))
-        <div class="validation-error">Please fill out this field.</div>
+        <div class="validation-error">{{ $errors->first('assetTag') }}</div>
       @endif
     </div>
 
     <div class="col-md-5 mt-2">
       <label for="serialNo" class="form-label">Serial No</label>
-      <input type="text" class="form-control" id="serialNo" name="serialNo" maxlength="150" required>
+      <input type="text" class="form-control" id="serialNo" name="serialNo" maxlength="150" value="{{ $asset->serial_no }}" required>
       @if ($errors->has('serialNo'))
-        <div class="validation-error">Please fill out this field.</div>
+        <div class="validation-error">{{ $errors->first('serialNo') }}</div>
       @endif
     </div>
 
     <div class="col-md-5 mt-2">
       <label for="purchasingOrder" class="form-label">Purchasing order</label>
-      <input type="text" class="form-control" id="purchasingOrder" name="purchasingOrder" maxlength="150" required>
+      <input type="text" class="form-control" id="purchasingOrder" name="purchasingOrder" maxlength="150" value="{{ $asset->purchase_order }}" required>
       @if ($errors->has('purchasingOrder'))
         <div class="validation-error">Please fill out this field.</div>
       @endif
@@ -116,12 +102,28 @@
     <div class="col-md-3 mt-2">
       <label for="assetStatus" class="form-label">Status</label>
       <select id="assetStatus" name="assetStatus" class="form-select" required>
-        <option selected value="">--Select--</option>
-        <option value="1">Brand New</option>
+        <option value="">--Select--</option>
+        <option value="1" selected>Brand New</option>
         <option value="2">Assigned</option>
         <option value="3">Damaged</option>
       </select>
     </div>
+
+    @if(isset($categories) && $categories != '[]')
+    <div class="col-md-6 mt-2">
+      Categories
+      <div class="row">
+          @foreach ($categories as $category)
+          <div class="col">
+              <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="{{ $category->id }}" id="{{ $category->id }}" name="categories[]" >
+                  <label class="form-check-label" for="{{ $category->id }}">{{ $category->category }}</label>
+              </div>
+          </div>
+          @endforeach
+      </div>
+    </div>
+    @endif
 
     <div class="col-12 mt-3">
       <button type="submit" class="btn btn-primary">Submit</button>
@@ -192,9 +194,11 @@
           })
       });
 
-
   });
 
+
 </script>
+
+
 
 @endsection

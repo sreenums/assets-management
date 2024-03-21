@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
         return view('home');
-    })->name('home');
+    })->name('assets.index');
 
 Route::get('/assets-parameters', function () {
     return view('assets-parameters');
@@ -76,4 +76,6 @@ Route::resource('/assets', AssetController::class);
 Route::post('/type-hardware-standard',[AssetController::class, 'getHardwareStandardWithType'])->name('get.type.hardwares');
 //For Technical spec with hardware standard
 Route::post('/hardware-technical-spec',[AssetController::class, 'getTechnicalSpecsWithHardwareStandard'])->name('get.hardware.technical.spec');
+
+Route::get('/assets-list',[AssetController::class, 'assetsList'])->name('list.asset');
 

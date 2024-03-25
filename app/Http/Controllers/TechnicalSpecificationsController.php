@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TechnicalSpecifications;
 use App\Services\TechnicalSpecsService;
+use App\Services\HardwareStandardService;
 use App\Services\AssetParameterService;
 use Illuminate\Http\Request;
 
@@ -12,6 +13,7 @@ class TechnicalSpecificationsController extends Controller
 
     protected $technicalSpecsService;
     protected $assetParameterService;
+    protected $hardwareStandardService;
 
     /**
      * Constructs a new instance of the class.
@@ -19,10 +21,10 @@ class TechnicalSpecificationsController extends Controller
      * @param TechnicalSpecsService $technicalSpecsService The technical specifications service.
      * @param assetParameterService $assetParameterService The asset service.
      */
-    public function __construct(TechnicalSpecsService $technicalSpecsService, AssetParameterService $assetParameterService)
+    public function __construct(TechnicalSpecsService $technicalSpecsService, HardwareStandardService $hardwareStandardService)
     {
         $this->technicalSpecsService = $technicalSpecsService;
-        $this->assetParameterService = $assetParameterService;
+        $this->hardwareStandardService = $hardwareStandardService;
     }
 
     /**
@@ -52,11 +54,11 @@ class TechnicalSpecificationsController extends Controller
      * Update the technical specification in storage.
      * 
      * @param $request form request data
-     * @param $technical_spec - technical specification object
+     * @param $technicalSpec - technical specification object
      */
-    public function update(Request $request, TechnicalSpecifications $technical_spec)
+    public function update(Request $request, TechnicalSpecifications $technicalSpec)
     {
-        $this->technicalSpecsService->updateTechnicalSpec($request, $technical_spec);
+        $this->technicalSpecsService->updateTechnicalSpec($request, $technicalSpec);
 
         return response()->json(['message' => 'Type has been updated successfully!']);
     }
@@ -64,11 +66,11 @@ class TechnicalSpecificationsController extends Controller
     /**
      * Remove the specified technical specification from storage.
      * 
-     * @param $technical_spec - technical specification object.
+     * @param $technicalSpec - technical specification object.
      */
-    public function destroy(TechnicalSpecifications $technical_spec)
+    public function destroy(TechnicalSpecifications $technicalSpec)
     {
-        $this->technicalSpecsService->deleteTechnicalSpec($technical_spec);
+        $this->technicalSpecsService->deleteTechnicalSpec($technicalSpec);
 
         return response()->json(['success' => 'Type Deleted Successfully!']);
     }

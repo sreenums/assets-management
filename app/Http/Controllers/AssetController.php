@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EditAssetRequest;
 use App\Http\Requests\StoreAssetRequest;
 use App\Models\Asset;
+use App\Models\HardwareStandard;
+use App\Models\Location;
+use App\Models\Type;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\AssetParameterService;
 use App\Services\TechnicalSpecsService;
@@ -31,39 +35,6 @@ class AssetController extends Controller
      */
     public function index(Request $request)
     {
-        
-        // if ($request->ajax()) {
-
-        //     $assets = $this->assetService->getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation();
-    
-        //     // Total records before filtering
-        //     $totalRecords = $assets->count();
-    
-        //     $assets = $this->assetService->filterAsset($request, $assets);
-    
-        //     // Total records after filtering
-        //     $filteredRecords = $assets->count();
-        //     $assets = $assets->skip($request->input('start'))->take($request->input('length'));     //->get() removed
-
-
-        //     // Apply pagination
-        //     // $start = $request->input('start', 0);
-        //     // $length = $request->input('length', 10); // Default page length
-        //     // $assets = $assets->slice($start)->take($length);
-
-        //     // /**
-        //     //  * Format for datatable
-        //     //  * 
-        //     //  */
-        //     $formattedData = $this->assetService->formatDataTable($assets);
-    
-        //     return response()->json([ 
-        //         'data' => $formattedData,
-        //         'recordsTotal' => $totalRecords,
-        //         'recordsFiltered' => $filteredRecords,
-        //     ]);
-
-        // }
         $assets = $this->assetService->getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation();
 
         return view('home',compact('assets'));
@@ -74,11 +45,12 @@ class AssetController extends Controller
      */
     public function create()
     {
-        $assetTypes = $this->assetParameterService->showAssetTypes();
-        //$hardwareStandards = $this->assetParameterService->showHardwareStandard();
-        //$technicalSpecs = $this->technicalSpecsService->showTechnicalSpecs();
-        $assetLocations = $this->assetParameterService->showLocations();
-        $users = $this->assetParameterService->showUsers();
+        //$assetTypes = $this->assetParameterService->showAssetTypes();
+        $assetTypes = Type::all();          //confirm 100
+        //$assetLocations = $this->assetParameterService->showLocations();
+        $assetLocations = Location::all();
+        //$users = $this->assetParameterService->showUsers();
+        $users = User::all();
 
         return view('assets.asset-add', compact('assetTypes','assetLocations','users'));
     }
@@ -96,9 +68,11 @@ class AssetController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Asset $asset)
     {
-        //
+        $asset = $this->assetService->loadAsset($asset);
+
+        return view('assets.asset-view', compact('asset')); //, compact('asset','assetStatusText')
     }
 
     /**
@@ -107,18 +81,20 @@ class AssetController extends Controller
     public function edit(string $id)
     {
         $asset = $this->assetService->getAssetWithTypeHardwareStandardTechnicalSpecStatusAndLocation($id);
-        $assetTypes = $this->assetParameterService->showAssetTypes();
-        $hardwareStandards = $this->assetParameterService->showHardwareStandard();
+        //$assetTypes = $this->assetParameterService->showAssetTypes();
+        $assetTypes = Type::all();      //confirm 100
+        //$hardwareStandards = $this->assetParameterService->showHardwareStandard();
+        $hardwareStandards = HardwareStandard::all();   //confirm 100
         $technicalSpecs = $this->technicalSpecsService->showTechnicalSpecs();
-        $assetLocations = $this->assetParameterService->showLocations();
-        $users = $this->assetParameterService->showUsers();
+        $assetLocations = $this->assetParameterService->getDynamicLocation($asset->status);
+        //$users = $this->assetParameterService->showUsers();
+        $users = User::select('id', 'name')->get();
 
         return view('assets.asset-edit', compact('asset','assetTypes','assetLocations','hardwareStandards','technicalSpecs','users'));
-        //return view('assets-edit', compact('post','users','categories','selectedCategoryIds'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified asset in storage.
      */
     public function update(EditAssetRequest $request, Asset $asset)
     {
@@ -128,17 +104,38 @@ class AssetController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified asset from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Asset $asset)
     {
-        //
+        $this->assetService->deleteAsset($asset);
+
+        return response()->json(['success' => 'Post Deleted Successfully!']);
+    }
+
+    /**
+     * For updating asset status.
+     * 
+     * @param $request ajax request
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        // $asset = Asset::findOrFail($id);
+
+        // // Update the status using data from the request
+        // $asset->update([
+        //     'status' => $request->input('assetStatusChange') // Assuming the input name is 'assetStatusChange'
+        // ]);
+
+        $this->assetService->updateStatus($request, $id);
+
+        return response()->json(['message' => 'Status has been updated successfully!']);
     }
 
     /**
      * Get list hardware standards with asset type.
      * 
-     * @param $request form request data
+     * @param $request ajax request data
      */
     public function getHardwareStandardWithType(Request $request)
     {
@@ -152,9 +149,9 @@ class AssetController extends Controller
     }
 
     /**
-     * Get list technical specs with hardware standard.
+     * Get list of technical specs with hardware standard.
      * 
-     * @param $request form request data
+     * @param $request ajax request data
      */
     public function getTechnicalSpecsWithHardwareStandard(Request $request)
     {
@@ -166,14 +163,40 @@ class AssetController extends Controller
         ]);
     }
 
+    /**
+     * Get list of user locations
+     * 
+     */
+    public function getUserLocationsList()
+    {
+        $users = $this->assetService->getUserLocationsList();
 
+        return response()->json([
+            'status' => 'success',
+            'users' => $users,
+        ]);
+    }
+
+    /**
+     * Get list of locations
+     */
+    public function getLocations()
+    {
+        $locations = $this->assetService->getLocations();
+        return response()->json([
+            'status' => 'success',
+            'locations' => $locations,
+        ]);
+    }
+
+    /**
+     * Get list of assets for data table using ajax
+     * 
+     * @param $request ajax request
+     */
     public function assetsList(Request $request)
     {
-        // Log the incoming request
-        //Log::info('Incoming request:', ['request' => $request->all()]);
-        
-        if ($request->ajax()) {    // Log the incoming AJAX request
-            Log::info('Incoming AJAX request:', ['request' => $request->all()]);
+        if ($request->ajax()) {  
         
             // Get assets list with required attributes
             $assets = $this->assetService->getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation();
@@ -194,13 +217,6 @@ class AssetController extends Controller
         
             // Format for datatable
             $formattedData = $this->assetService->formatDataTable($assets);
-        
-            // Log the outgoing response
-            Log::info('Outgoing AJAX response:', [
-                'data' => $formattedData,
-                'recordsTotal' => $totalRecords,
-                'recordsFiltered' => $filteredRecords,
-            ]);
         
             return response()->json([ 
                 'data' => $formattedData,

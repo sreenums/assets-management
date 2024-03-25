@@ -33,4 +33,9 @@ class UserRepository
         return $user->delete();
     }
 
+    public function getUsers()
+    {
+       return $this->model->get();
+    }
+
 }

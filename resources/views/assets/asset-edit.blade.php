@@ -60,20 +60,7 @@
       @endif
     </div>
 
-    <div class="col-md-6 mt-2">
-      <label for="assetLocation" class="form-label">Location</label>
-      <select id="assetLocation" name="assetLocation" class="form-select" required>
-        
-        <option selected value="{{ $asset->location_id }}">{{ $asset->location->name }}</option>
-        @foreach ($assetLocations as $assetLocation)
-        <option value="{{ $assetLocation->id }} ">{{ $assetLocation->name }} </option>
-        @endforeach
 
-      </select>
-      @if ($errors->has('assetLocation'))
-        <div class="validation-error">Please select asset location</div>
-      @endif
-    </div>
 
     <div class="col-md-5 mt-2">
       <label for="assetTag" class="form-label">Asset tag</label>
@@ -99,31 +86,41 @@
       @endif
     </div>
 
+
+
     <div class="col-md-3 mt-2">
       <label for="assetStatus" class="form-label">Status</label>
       <select id="assetStatus" name="assetStatus" class="form-select" required>
         <option value="">--Select--</option>
-        <option value="1" selected>Brand New</option>
-        <option value="2">Assigned</option>
-        <option value="3">Damaged</option>
+        <option value="1" {{ $asset->status == 1 ? 'selected' : '' }}>Brand New</option>
+        <option value="2" {{ $asset->status == 2 ? 'selected' : '' }}>Assigned</option>
+        <option value="3" {{ $asset->status == 3 ? 'selected' : '' }}>Damaged</option>
       </select>
     </div>
 
-    @if(isset($categories) && $categories != '[]')
     <div class="col-md-6 mt-2">
-      Categories
-      <div class="row">
-          @foreach ($categories as $category)
-          <div class="col">
-              <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="{{ $category->id }}" id="{{ $category->id }}" name="categories[]" >
-                  <label class="form-check-label" for="{{ $category->id }}">{{ $category->category }}</label>
-              </div>
-          </div>
+      <label for="assetLocation" class="form-label">User/ Location</label>
+      <select id="assetLocation" name="assetLocation" class="form-select" required>
+        
+        @if(isset($asset->location_id))
+          <option selected value="{{ $asset->location_id }}">{{ $asset->location->name }}</option>
+          @foreach ($assetLocations as $assetLocation)
+          <option value="{{ $assetLocation->id }} ">{{ $assetLocation->name }} </option>
           @endforeach
-      </div>
+        @endif
+
+        @if(isset($asset->user_id))
+          <option selected value="{{ $asset->user_id }}">{{ $asset->user->name }}</option>
+          @foreach ($users as $user)
+          <option value="{{ $user->id }} ">{{ $user->name }} </option>
+          @endforeach
+        @endif
+
+      </select>
+      @if ($errors->has('assetLocation'))
+        <div class="validation-error">Please select asset location</div>
+      @endif
     </div>
-    @endif
 
     <div class="col-12 mt-3">
       <button type="submit" class="btn btn-primary">Submit</button>
@@ -163,6 +160,51 @@
               }
           })
       });
+
+      $(document).on('change','#assetStatus', function() {
+      let assetStatus = $(this).val();
+      if (assetStatus == '2') {           //Assigned
+            //$("#assetLocation").html("<option value=''>User Selected</option>");
+            $.ajax({
+                method: 'post',
+                url: "{{ route('get.users') }}",
+
+                success: function(res) {
+                    if (res.status == 'success') {
+                        let all_options = "<option value=''>--Select--</option>";
+                        let users = res.users;
+                        $.each(users, function(index, value) {
+                            all_options += "<option value='" + value.id +
+                                "'>" + value.name + "</option>";
+                        });
+
+                        $("#assetLocation").html(all_options);
+                    }
+                }
+            });
+        } else {
+          $.ajax({
+                method: 'post',
+                url: "{{ route('get.locations') }}",
+
+                success: function(res) {
+                    if (res.status == 'success') {
+                        let all_options = "<option value=''>--Select--</option>";
+                        let locations = res.locations;
+                        $.each(locations, function(index, value) {
+                            all_options += "<option value='" + value.id +
+                                "'>" + value.name + "</option>";
+                        });
+
+                        $("#assetLocation").html(all_options);
+                    }
+                }
+          });
+        } 
+
+      });
+
+
   });
 
   /**

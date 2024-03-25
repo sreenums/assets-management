@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Location;
+use Illuminate\Support\Facades\Log;
 
 class LocationRepository
 {
@@ -20,7 +21,8 @@ class LocationRepository
 
     public function addLocation($data)
     {
-       return $this->model->create($data);
+        // Create the location
+        return $this->model->create($data);
     }
 
     public function updateLocation($location, $locationData)
@@ -31,6 +33,16 @@ class LocationRepository
     public function deleteLocation($location)
     {
         return $location->delete();
+    }
+
+    public function getLocations()
+    {
+       return $this->model->get();
+    }
+
+    public function getUserLocationsList()
+    {
+       return $this->model->where('type', 'user')->get();
     }
 
 }

@@ -3,16 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Services\AssetParameterService;
+//use App\Services\userService;
+use App\Services\UserService;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-    protected $assetParameterService;
+    protected $userService;
 
-    public function __construct(AssetParameterService $assetParameterService)
+    public function __construct(UserService $userService)
     {
-        $this->assetParameterService = $assetParameterService;
+        $this->userService = $userService;
     }
 
 
@@ -21,8 +24,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = $this->assetParameterService->showUsers();
-        
+        $users = $this->userService->showUsers();
+
         return view('user-home', compact('users'));
     }
 
@@ -39,9 +42,16 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $user = $this->assetParameterService->addUser($request);
-        
-        return response()->json(['message' => 'Data has been saved!', 'type' => $request->assetUser, 'id' => $user->id, 'emailId' => $user->email ]);
+
+        try {
+            $user = $this->userService->addUser($request);
+            return response()->json(['message' => 'Data has been saved!', 'type' => $request->assetUser, 'id' => $user->id, 'emailId' => $user->email]);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()]);
+        } catch(Exception){
+            return response()->json(['errors' => 'Failed to add user']);
+        }
+
     }
 
     /**
@@ -65,7 +75,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $this->assetParameterService->updateUser($request, $user);
+        $this->userService->updateUser($request, $user);
 
         return response()->json(['message' => 'User has been updated successfully!']);
     }
@@ -75,9 +85,23 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        $this->assetParameterService->deleteUser($user);
+        $this->userService->deleteUser($user);
 
         return response()->json(['success' => 'Type Deleted Successfully!']);
     }
-    
+
+    /**
+     * Get list of users
+     * 
+     */
+    public function getUsers()
+    {
+        $users = $this->userService->getUsers();
+
+        return response()->json([
+            'status' => 'success',
+            'users' => $users,
+        ]);
+    }
+
 }

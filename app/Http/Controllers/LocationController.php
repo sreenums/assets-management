@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Location;
-use App\Services\AssetParameterService;
+// use App\Services\AssetParameterService;
+use App\Services\LocationService;
 use Illuminate\Http\Request;
 
 class LocationController extends Controller
 {
 
-    protected $assetParameterService;
+    protected $locationService;
 
-    public function __construct(AssetParameterService $assetParameterService)
+    public function __construct(LocationService $locationService)
     {
-        $this->assetParameterService = $assetParameterService;
+        $this->locationService = $locationService;
     }
 
     /**
@@ -22,7 +23,7 @@ class LocationController extends Controller
      */
     public function index()
     {
-        $locations = $this->assetParameterService->showLocations();
+        $locations = $this->locationService->showLocations();
         
         return view('location-home', compact('locations'));
     }
@@ -34,7 +35,7 @@ class LocationController extends Controller
      */
     public function store(Request $request)
     {
-        $type = $this->assetParameterService->addLocation($request);
+        $type = $this->locationService->addLocation($request);
         
         return response()->json(['message' => 'Data has been saved!', 'type' => $request->assetLocation, 'id' => $type->id ]);
     }
@@ -47,7 +48,7 @@ class LocationController extends Controller
      */
     public function update(Request $request, Location $location)
     {
-        $this->assetParameterService->updateLocation($request, $location);
+        $this->locationService->updateLocation($request, $location);
 
         return response()->json(['message' => 'Location has been updated successfully!']);
     }
@@ -59,7 +60,7 @@ class LocationController extends Controller
      */
     public function destroy(Location $location)
     {
-        $this->assetParameterService->deleteLocation($location);
+        $this->locationService->deleteLocation($location);
 
         return response()->json(['success' => 'Location Deleted Successfully!']);
     }

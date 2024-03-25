@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Asset;
+use Illuminate\Support\Facades\Log;
 
 class AssetRepository
 {
@@ -74,14 +75,25 @@ class AssetRepository
         return $assets;
     }
 
-    // public function editAsset($assetId)
-    // {
-    //     return $this->model->findOrFail($assetId);
-    // }
+    public function updateStatus($id, $updateStatusData)
+    {
+        $asset = Asset::findOrFail($id);
+
+        return $asset->update($updateStatusData);
+    }
 
     public function getAssetWithTypeHardwareStandardTechnicalSpecStatusAndLocation($assetId)
     {
         return $this->model->with(['type:id,type', 'hardwareStandard:id,description','technicalSpecification:id,description','location:id,name'])->findOrFail($assetId);
     }
 
+    public function deleteAsset($asset)
+    {
+        return $asset->delete();
+    }
+
+    public function loadAsset($post)
+    {
+        return $post->load('user')->load('type')->load('hardwareStandard');
+    }
 }

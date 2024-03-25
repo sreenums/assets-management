@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Type;
-use App\Services\AssetParameterService;
+use App\Services\AssetTypeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class AssetTypeController extends Controller
 {
-    protected $assetParameterService;
+    protected $assetTypeService;
 
-    public function __construct(AssetParameterService $assetParameterService)
+    public function __construct(assetTypeService $assetTypeService)
     {
-        $this->assetParameterService = $assetParameterService;
+        $this->assetTypeService = $assetTypeService;
     }
 
     /**
@@ -21,7 +21,7 @@ class AssetTypeController extends Controller
      */
     public function index()
     {
-        $assetTypes = $this->assetParameterService->showAssetTypes();
+        $assetTypes = $this->assetTypeService->showAssetTypes();
         
         return view('type-home', compact('assetTypes'));
     }
@@ -31,7 +31,7 @@ class AssetTypeController extends Controller
      */
     public function store(Request $request)
     {
-        $type = $this->assetParameterService->addType($request);
+        $type = $this->assetTypeService->addType($request);
         
         return response()->json(['message' => 'Data has been saved!', 'type' => $request->assetType, 'id' => $type->id ]);
     }
@@ -41,7 +41,7 @@ class AssetTypeController extends Controller
      */
     public function update(Request $request, Type $assets_type)
     {
-        $this->assetParameterService->updateType($request, $assets_type);
+        $this->assetTypeService->updateType($request, $assets_type);
 
         return response()->json(['message' => 'Type has been updated successfully!']);
     }
@@ -52,7 +52,7 @@ class AssetTypeController extends Controller
     public function destroy(Type $assets_type)
     {
         // Call the asset service to delete the type
-        $this->assetParameterService->deleteType($assets_type);
+        $this->assetTypeService->deleteType($assets_type);
 
         return response()->json(['success' => 'Type Deleted Successfully!']);
     }

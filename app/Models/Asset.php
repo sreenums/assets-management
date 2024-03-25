@@ -14,6 +14,7 @@ class Asset extends Model
         'hardware_standard_id',
         'technical_specification_id',
         'location_id',
+        'user_id',
         'asset_tag',
         'serial_no',
         'purchase_order',
@@ -45,4 +46,26 @@ class Asset extends Model
         return $this->belongsTo(Location::class);
     }
 
+    public function assetHistories()
+    {
+        return $this->hasMany(AssetHistory::class);
+    }
+    
+    public function getStatusTextAttribute()
+    {
+        switch ($this->status) {
+            case 1:
+                return 'Brand New';
+                break;
+            case 2:
+                return 'Assigned';
+                break;
+            case 3:
+                return 'Damaged';
+                break;
+            default:
+                return 'Unknown';
+                break;
+        }
+    }
 }

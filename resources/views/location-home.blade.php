@@ -53,12 +53,12 @@
 
       <tbody>
         
-        <!--Add Hardware Standard popup -->
+        <!--Add location popup -->
         <div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg">
               <div class="modal-content">
                   <div class="modal-header">
-                      <h5 class="modal-title" id="ModalLabel">Comments</h5>
+                      <h5 class="modal-title" id="ModalLabel">Add location</h5>
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body" id="commentsContainer">

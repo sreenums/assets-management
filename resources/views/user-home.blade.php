@@ -54,22 +54,26 @@
 
       <tbody>
         
-        <!--Add Hardware Standard popup -->
+        <!--Add User popup -->
         <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg">
               <div class="modal-content">
                   <div class="modal-header">
-                      <h5 class="modal-title" id="ModalLabel">Comments</h5>
+                      <h5 class="modal-title" id="ModalLabel">Add User</h5>
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body" id="commentsContainer">
                     <form id="userForm">
                     @csrf
                         <!-- Form fields for collecting data -->
-                        <label for="assetUser" class="form-label">Name:</label>
+                        <label for="assetUser" class="form-label">User Name:</label>
                         <input type="text" name="assetUser" id="assetUser" placeholder="Enter user name" class="form-control" required>
+                        
+                            <div class="validation-error"></div>
+                        
                         <label for="email" class="form-label mt-2">Email Id:</label>
                         <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email Id" required>
+                        <div class="validation-error"></div>
                         <!-- Add more fields as needed -->
                         <button type="submit" class="btn btn-primary mt-2">Save</button>
                     </form>
@@ -121,6 +125,7 @@
   $(document).ready(function() {
     $('#addUser').click(function(e) {
       e.preventDefault();
+      $('.validation-error').html('');
       $('#userForm')[0].reset(); 
       $('#userModal').modal('show');
     });
@@ -190,6 +195,18 @@
         type: 'POST',
         data: formData,
         success: function(response) {
+          var errors =response.errors; //console.log(errors.assetUser);
+
+            if (errors) {
+              // Clear previous errors
+              $('.validation-error').html('');
+              // Loop through the errors and display them
+              $.each(errors, function(key, value) {
+                $('#' + key).next('.validation-error').text(value[0]);
+              });
+              return;
+            }
+
           $('#userModal').modal('hide');
           alert(response.message);
 
@@ -204,8 +221,7 @@
         $('#users-table tbody').append(newRow);
         },
         error: function(xhr, status, error) {
-          // Handle error response
-          console.error(xhr.responseText);
+            console.log(error);
         }
       });
     });

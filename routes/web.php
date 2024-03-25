@@ -76,6 +76,13 @@ Route::resource('/assets', AssetController::class);
 Route::post('/type-hardware-standard',[AssetController::class, 'getHardwareStandardWithType'])->name('get.type.hardwares');
 //For Technical spec with hardware standard
 Route::post('/hardware-technical-spec',[AssetController::class, 'getTechnicalSpecsWithHardwareStandard'])->name('get.hardware.technical.spec');
+//For users list
+Route::post('/users-list',[UserController::class, 'getUsers'])->name('get.users');
+//For locations list
+Route::post('/locations-list',[AssetController::class, 'getLocations'])->name('get.locations');
 
 Route::get('/assets-list',[AssetController::class, 'assetsList'])->name('list.asset');
+
+//For status update
+Route::put('/status-update/{id}',[AssetController::class, 'updateStatus'])->name('asset.update-status');
 

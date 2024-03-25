@@ -54,9 +54,9 @@ class TechnicalSpecsService
      * Update Technical Specification to storage
      * 
      * @param $request - form request data
-     * @param $technical_specs - Technical Specification object
+     * @param $technicalSpec - Technical Specification object
      */
-    public function updateTechnicalSpec($request, $technical_specs)
+    public function updateTechnicalSpec($request, $technicalSpec)
     {
         $validatedData = $request->validate([
             'editTechnicalSpec' => 'required|string|max:255',
@@ -67,7 +67,7 @@ class TechnicalSpecsService
             'hardware_standard_id' => $request->editHardwareStandard,
         ];
 
-        return $type = $this->technicalSpecsRepository->updateTechnicalSpec($technical_specs, $technicalSpecData);
+        return $type = $this->technicalSpecsRepository->updateTechnicalSpec($technicalSpec, $technicalSpecData);
     }
 
 }

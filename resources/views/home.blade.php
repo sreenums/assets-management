@@ -18,8 +18,8 @@
     <div class="text-right mt-3">
       <a href="{{ route('assets.create'); }}" class="btn btn-outline-success">Add Asset</a>
     </div>
-    <div class="table-responsive ml-3 mr-3">
-        <table class="table table-striped">
+    <div class="table-responsive ml-2 mr-2">
+        <!--<table class="table table-striped">
             <thead>
                 <tr>
                     <th>Sl. No</th>
@@ -60,24 +60,28 @@
                     <td>PO12347</td>
                 </tr>
             </tbody>
-        </table>
+        </table>-->
 
 <br>
 <br>
 
-        <table id="assets-table" class="table table-hover" width="1200px">
+        <table id="assets-table" class="table table-striped table-hover" >
             <thead class="table-success">
-                <tr>
-                    <th>Sl no</th>
-                    <th>Type</th>
-                    <th>Hardware Standard</th>
-                    <th>Technical Specification</th>
-                    <th>Location</th>
-                    <th>Status</th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                </tr>
+                
+                    <tr>
+                        <th>Sl no</th>
+                        <th>Type</th>
+                        <th>Hardware Standard</th>
+                        <th>Technical Specification</th>
+                        <th>User/ Location</th>
+                        <th>Status</th>
+                        <th>Asset Tag</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    <tbody>
+                    </tbody>
             </thead>
         </table>
         <br>
@@ -101,6 +105,7 @@
                 { data: 'technicalSpecification', name: 'technical_specification_id' },
                 { data: 'location', name: 'location_id' },
                 { data: 'status', name: 'status' },
+                { data: 'assetTag', name: 'asset_tag' },
                 {
                     data: 'id',
                     name: 'view',
@@ -168,6 +173,31 @@
 
     });
 
+
+
+    $(document).ready(function () {
+
+        //Delete Post
+        $('body').on('click', '#delete-asset', function () {
+
+        var assetURL = $(this).data('url');
+        var trObj = $(this);
+        if(confirm("Are you sure, you want to delete this post?") == true){
+
+                $.ajax({
+                    url: assetURL,
+                    type: 'DELETE',
+                    dataType: 'json',
+
+                    success: function(data) {
+                        alert(data.success);
+                        trObj.parents("tr").remove();
+                    }
+                });
+        }
+        });
+
+    });
 </script>
 
 

@@ -19,69 +19,81 @@
       <a href="{{ route('assets.create'); }}" class="btn btn-outline-success">Add Asset</a>
     </div>
     <div class="table-responsive ml-2 mr-2">
-        <!--<table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Sl. No</th>
-                    <th>Type</th>
-                    <th>Hardware Standard</th>
-                    <th>Technical Specification</th>
-                    <th>Asset Tag</th>
-                    <th>Status</th>
-                    <th>PO</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Workstation</td>
-                    <td>LIGS</td>
-                    <td>Hhx/8GB/1T</td>
-                    <td>A344545</td>
-                    <td>Assigned</td>
-                    <td>PO12345</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Monitor</td>
-                    <td>acer</td>
-                    <td>23' HD</td>
-                    <td>A344546</td>
-                    <td>Assigned</td>
-                    <td>PO12346</td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>Workstation</td>
-                    <td>LIGS</td>
-                    <td>Hhx/8GB/1T</td>
-                    <td>A344547</td>
-                    <td>Assigned</td>
-                    <td>PO12347</td>
-                </tr>
-            </tbody>
-        </table>-->
+            <div class="row mb-2 mt-4">
+                
+                <div class="col-md-4">
+                  <!-- Asset Type Filter -->
+                  <div class="form-group">
+                      <label for="assetsType">Type:</label>
+                      <select id="assetsType" name="assetsType" class="form-control">
+                          <option value="all">All Asset Types</option>
+                          @foreach($assetTypes as $assetType)
+                              <option value="{{ $assetType->id }}" >{{ $assetType->type }}</option>
+                          @endforeach
+                      </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <!-- Hardware Standard Filter -->
+                  <div class="form-group">
+                      <label for="hardwareStandard">Hardware Standard:</label>
+                      <select id="hardwareStandard" name="hardwareStandard" class="form-control">
+                          <option value="all">--Select--</option>
+                          @foreach($hardwareStandards as $hardwareStandard)
+                              <option value="{{ $hardwareStandard->id }}" >{{ $hardwareStandard->description }}</option>
+                          @endforeach
+                      </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <!-- Hardware Standard Filter -->
+                  <div class="form-group">
+                      <label for="technicalSpec">Technical Specification:</label>
+                      <select id="technicalSpec" name="technicalSpec" class="form-control">
+                          <option value="all">--Select--</option>
+                          @foreach($technicalSpecs as $technicalSpec)
+                              <option value="{{ $technicalSpec->id }}" >{{ $technicalSpec->description }}</option>
+                          @endforeach
+                      </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                    <!-- Status Filter -->
+                    <div class="form-group">
+                        <label for="assetStatus">Status:</label>
+                        <select id="assetStatus" name="assetStatus" class="form-control">
+                            <option value="all">All Statuses</option>
+                            <option value="1" >Brand New</option>
+                            <option value="2" >Assigned</option>
+                            <option value="3" >Damaged</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <!-- Search Input -->
+                    <div class="form-group">
+                        <label for="assetSearch">Asset tag/ Asset Slno:</label>
+                        <input type="text" id="assetSearch" name="assetSearch" class="form-control" onkeypress="return /[a-zA-Z0-9]/.test(event.key)" placeholder="Asset tag or asset slno" value="{{ request('commentsCount') }}">
+                    </div>
+                </div>
+            </div>
 
 <br>
-<br>
-
         <table id="assets-table" class="table table-striped table-hover" >
             <thead class="table-success">
                 
                     <tr>
                         <th>Sl no</th>
-                        <th>Type</th>
-                        <th>Hardware Standard</th>
-                        <th>Technical Specification</th>
-                        <th>User/ Location</th>
+                        <th><a href="{{ route('assets-type.index') }}">Type</a></th>
+                        <th><a href="{{ route('hardware-standard.index') }}">Hardware Standard</a></th>
+                        <th><a href="{{ route('technical-specs.index') }}">Technical Specification</a></th>
+                        <th><a href="{{ route('users.index'); }}">User</a> / <a href="{{ route('locations.index'); }}">Location</a></th>
                         <th>Status</th>
                         <th>Asset Tag</th>
                         <th></th>
                         <th></th>
                         <th></th>
                     </tr>
-                    <tbody>
-                    </tbody>
             </thead>
         </table>
         <br>
@@ -94,7 +106,45 @@
 <script type="text/javascript">
     
     $(document).ready(function() {
+
+        $(document).on('change','#assetsType', function() {
+        $("#hardwareStandard").html("<option value='all'>--Select--</option>");
+        //$("#technicalSpec").html("<option value=''>--Select--</option>");
+          let assetType = $(this).val();
+          $.ajax({
+              method: 'post',
+              url: "{{ route('get.type.hardwares') }}",
+              data: {
+                assetType: assetType
+              },
+              success: function(res) {
+                  if (res.status == 'success') {
+                      let all_options = "<option value=''>--Select--</option>";
+                      let subHardwareStandards = res.subHardwareStandards;
+                      $.each(subHardwareStandards, function(index, value) {
+                          all_options += "<option value='" + value.id +
+                              "'>" + value.description + "</option>";
+                      });
+                      
+                      $("#hardwareStandard").html(all_options);
+                  }
+              }
+          })
+      });
+
+
+
+
+    });
+
+
+    $(document).ready(function() {
+
         $('#assets-table').DataTable({
+            columnDefs: [
+                { targets: [1, 2, 3, 4, 5, 6, 7, 8, 9], orderable: false } // Disable sorting for all columns except Sl no (index 0)
+            ],
+            searching: false,
             processing: true,
             serverSide: true,
             ajax: "{{ route('list.asset') }}",
@@ -133,30 +183,30 @@
             }
         });
 
-        // $('#assets-table').on('click', '.view-comments-page', function(e) {
-        //     e.preventDefault();
-        //     var assetId = $(this).data('asset-id');
-
-        //     // Comments view with assetId
-        //     loadComments(assetId);
-        // });
-
 
         function handleFilterChange() {
-            var authorId = $('#authorName').val();
-            var statusId = $('#postStatus').val();
-            var commentsCount = $('#commentsCountPosts').val();
+            var assetTypeId = $('#assetsType').val();
+            var hardwareStandard = $('#hardwareStandard').val();
+            var technicalSpec = $('#technicalSpec').val();
+            var statusId = $('#assetStatus').val();
+            var assetSearch = $('#assetSearch').val();
 
-            var url = "{{ route('assets.index') }}?";
+            var url = "{{ route('list.asset') }}?";
 
-            if (authorId) {
-                url += "author=" + authorId + "&";
+            if (assetTypeId) {
+                url += "assetType=" + assetTypeId + "&";
+            }
+            if (hardwareStandard) {
+                url += "hardwareStandard=" + hardwareStandard + "&";
+            }
+            if (technicalSpec) {
+                url += "technicalSpec=" + technicalSpec + "&";
             }
             if (statusId) {
                 url += "status=" + statusId + "&";
             }
-            if (commentsCount) {
-                url += "commentsCount=" + commentsCount + "&";
+            if (assetSearch) {
+                url += "assetSearch=" + assetSearch + "&";
             }
 
             // Remove trailing '&' if exists
@@ -165,11 +215,19 @@
             $('#assets-table').DataTable().ajax.url(url).load();
         }
 
-        // Event listeners for filter changes
-        // $('#authorName, #postStatus, #commentsCountPosts').on('keyup change', function() {
-        //     handleFilterChange();
-        // });
+        $('#assetSearch, #assetStatus, #assetsType, #hardwareStandard, #technicalSpec').on('keyup change', function() {
+            
+            if ($(this).is('#assetsType')) {
+                $("#hardwareStandard").html("<option value='all'>--Select--</option>");
+                $("#technicalSpec").html("<option value='all'>--Select--</option>");
+            }
 
+            if ($(this).is('#hardwareStandard')) {
+                $("#technicalSpec").html("<option value='all'>--Select--</option>");
+            }
+
+            handleFilterChange();
+        });
 
     });
 

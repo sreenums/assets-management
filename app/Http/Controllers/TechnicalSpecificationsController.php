@@ -33,7 +33,7 @@ class TechnicalSpecificationsController extends Controller
     public function index()
     {
         $technicalSpecs = $this->technicalSpecsService->showTechnicalSpecs();
-        $hardwareStandards = $this->assetParameterService->showHardwareStandard();
+        $hardwareStandards = $this->hardwareStandardService->showHardwareStandard();
         
         return view('technical-spec-home', compact('technicalSpecs','hardwareStandards'));
     }

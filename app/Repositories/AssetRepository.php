@@ -31,9 +31,9 @@ class AssetRepository
 
     public function FilterAsset($request, $assets)
     {
-
-        if ($request->has('search')) {
-            $searchTerm = $request->search['value'];
+        //For search with asset tag and serial number
+        if ($request->has('assetSearch')) {
+            $searchTerm = $request->assetSearch;
             if(isset($searchTerm)){
                 $assets->where(function ($q) use ($searchTerm) {
                     $q->where('asset_tag', 'like', "%$searchTerm%")
@@ -41,36 +41,45 @@ class AssetRepository
                 });
             }
         }
+        
+        //Filtering based on type
+        if ($request->has('assetType') && $request->assetType != 'all') {
+            $assets->where('type_id', $request->assetType);
+        }
 
-        // if ($request->has('author') && $request->author != 'all') {
-        //     $assets->where('user_id', $request->author);
-        // }
+        //Filtering based on hardware standard
+        if ($request->has('hardwareStandard') && $request->hardwareStandard != 'all') {
+            $assets->where('hardware_standard_id', $request->hardwareStandard);
+        }
+
+        //Filtering based on technical specification
+        if ($request->has('technicalSpec') && $request->technicalSpec != 'all') {
+            $assets->where('technical_specification_id', $request->technicalSpec);
+        }
 
         // //Filtering based on status
-        // if ($request->has('status')) {
-        //     if(request('status') == 1){ 
-        //         $assets->where('is_active', 1); 
-        //     }
-        //     elseif(request('status') == 0){ 
-        //         $assets->where('is_active', 0); 
-        //     }
-        // }
+        if ($request->has('status')) {
+            if(request('status') == 1){ 
+                $assets->where('status', 1); 
+            }
+            elseif(request('status') == 2){ 
+                $assets->where('status', 2); 
+            }
+            elseif(request('status') == 3){ 
+                $assets->where('status', 3); 
+            }
+        }
 
-        // //Filtering based on comments count
-        // if ($request->has('commentsCount') && isset($request->commentsCount)) {
-        //     $assets->having('comments_count', '=', $request->commentsCount);
-        // }
+        // Sorting based on ID column
+        if ($request->has('order')) {
+            $orderColumnIndex = $request->order[0]['column'];
+            $orderDirection = $request->order[0]['dir'];
+            $orderColumnName = $request->columns[$orderColumnIndex]['data'];
 
-        // // Sorting based on ID column
-        // if ($request->has('order')) {
-        //     $orderColumnIndex = $request->order[0]['column'];
-        //     $orderDirection = $request->order[0]['dir'];
-        //     $orderColumnName = $request->columns[$orderColumnIndex]['data'];
-
-        //     if ($orderColumnName === 'id') {
-        //         $assets->orderBy('id', $orderDirection);
-        //     }
-        // }
+            if ($orderColumnName === 'id') {
+                $assets->orderBy('id', $orderDirection);
+            }
+        }
 
         return $assets;
     }
@@ -89,6 +98,7 @@ class AssetRepository
 
     public function deleteAsset($asset)
     {
+        $asset->assetHistories()->delete();
         return $asset->delete();
     }
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\AssetManagementController;
 use App\Http\Controllers\AssetParameterController;
 use App\Http\Controllers\AssetTypeController;
 use App\Http\Controllers\HardwareStandardController;
+use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\TechnicalSpecificationsController;
 use App\Http\Controllers\UserController;
@@ -85,4 +86,7 @@ Route::get('/assets-list',[AssetController::class, 'assetsList'])->name('list.as
 
 //For status update
 Route::put('/status-update/{id}',[AssetController::class, 'updateStatus'])->name('asset.update-status');
+
+// Route for Status History
+Route::get('/assets/{asset}/history', [HistoryController::class, 'showHistory'])->name('asset.history');
 

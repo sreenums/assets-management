@@ -7,6 +7,7 @@ use App\Http\Requests\StoreAssetRequest;
 use App\Models\Asset;
 use App\Models\HardwareStandard;
 use App\Models\Location;
+use App\Models\TechnicalSpecifications;
 use App\Models\Type;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -36,8 +37,11 @@ class AssetController extends Controller
     public function index(Request $request)
     {
         $assets = $this->assetService->getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation();
+        $assetTypes = Type::all();
+        $hardwareStandards = HardwareStandard::all();
+        $technicalSpecs = TechnicalSpecifications::all();
 
-        return view('home',compact('assets'));
+        return view('home',compact('assets','assetTypes','hardwareStandards','technicalSpecs'));
     }
 
     /**
@@ -120,13 +124,6 @@ class AssetController extends Controller
      */
     public function updateStatus(Request $request, $id)
     {
-        // $asset = Asset::findOrFail($id);
-
-        // // Update the status using data from the request
-        // $asset->update([
-        //     'status' => $request->input('assetStatusChange') // Assuming the input name is 'assetStatusChange'
-        // ]);
-
         $this->assetService->updateStatus($request, $id);
 
         return response()->json(['message' => 'Status has been updated successfully!']);

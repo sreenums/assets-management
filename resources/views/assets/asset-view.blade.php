@@ -9,7 +9,10 @@
 <div class="container mt-5">
     <div class="card">
         <div class="card-body">
-            <h3 class="card-title mb-4">Asset Informations</h3>
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-4">Asset Informations</h3>
+                <a href="#" data-asset-id="{{ $asset->id }}" id="history" name="history" class="btn btn-light">Asset Status History</a>
+            </div>
             <div class="mb-3 row">
                 <label for="assetType" class="col-sm-3 col-form-label">Asset Type</label>
                 <div class="col-sm-9">
@@ -92,8 +95,8 @@
                             <option value="3" {{ $asset->status == 3 ? 'selected' : '' }}>Damaged</option>
                         </select>
 
-                        <label for="assetLocation" class="form-label">User/ Location</label>
-                        <select id="assetLocation" name="assetLocation" class="form-select" required>
+                        <label for="assetLocationEdit" class="form-label">User/ Location</label>
+                        <select id="assetLocationEdit" name="assetLocationEdit" class="form-select" required>
                             
                             @if(isset($asset->location_id))
                             <option selected value="{{ $asset->location_id }}">{{ $asset->location->name }}</option>
@@ -106,7 +109,7 @@
                             @endif
 
                         </select>
-                        @if ($errors->has('assetLocation'))
+                        @if ($errors->has('assetLocationEdit'))
                             <div class="validation-error">Please select asset location</div>
                         @endif
 
@@ -120,8 +123,46 @@
           </div>
         </div>
 
+
+
+
+        <div class="modal fade" id="assetHistoryModal" tabindex="-1" aria-labelledby="assetHistoryModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title" id="assetHistoryModalLabel">Asset Status History</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body" id="assetHistoryContainer" style="word-wrap: break-word">
+                        <!--<h1 class="mt-5 mb-3">Asset History</h1>-->
+
+                        <!-- Asset history cards -->
+                        <div class="card">
+                            <div class="card-header">
+                                Asset: Asset Name
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">History Details</h5>
+                                <p class="card-text">Details about the asset history...</p>
+                                <!-- Add more details as needed -->
+                            </div>
+                        </div>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+              </div>
+          </div>
+        </div>
+
 <script>
   $(document).ready(function() {
+
+    // $('body').on('click', '#history', function (e) {
+    //     e.preventDefault();
+    //     $('#assetHistoryModal').modal('show');
+    // });
+
 
     $('body').on('click', '#changeStatus', function (e) {
 
@@ -156,22 +197,22 @@
     $(document).on('change','#assetStatusChange', function() {
       let assetStatusChange = $(this).val();
       if (assetStatusChange == '2') {           //Assigned
-        alert('assigned');
-            //$("#assetLocation").html("<option value=''>User Selected</option>");
+
+            //$("#assetLocationEdit").html("<option value=''>User Selected</option>");
             $.ajax({
                 method: 'post',
                 url: "{{ route('get.users') }}",
 
                 success: function(res) {
                     if (res.status == 'success') {
-                        let all_options = "<option value=''>--Select--</option>";
+                        let all_options = "<option value=''>--Select--</option>"; 
                         let users = res.users;
                         $.each(users, function(index, value) {
                             all_options += "<option value='" + value.id +
                                 "'>" + value.name + "</option>";
                         });
-
-                        $("#assetLocation").html(all_options);
+                        
+                        $("#assetLocationEdit").html(all_options);
                     }
                 }
             });
@@ -189,7 +230,7 @@
                                 "'>" + value.name + "</option>";
                         });
 
-                        $("#assetLocation").html(all_options);
+                        $("#assetLocationEdit").html(all_options);
                     }
                 }
           });
@@ -197,8 +238,66 @@
 
       });
 
+    $('body').on('click', '#history', function (e) {
+        e.preventDefault();
+        $('#assetHistoryModal').modal('show');
+        var assetId = $(this).data('asset-id');
+
+        // History view with assetId
+        loadHistory(assetId);
+    });
+
+    function loadHistory(assetId) {
+        $.ajax({
+            url: '/assets/' + assetId + '/history',
+            type: 'GET',
+            success: function(response) {
+                var histories = response.histories;
+                var historyHtml = '';
+                if (histories.length > 0) {
+                    historyHtml += '<ul>';
+                    histories.forEach(function(history) {
+
+                        var changedFieldsObj = JSON.parse(history.changed_fields);
+
+                        var formattedChanges = [];
+                        // Iterate over the properties of the object
+                        for (var key in changedFieldsObj) {
+                            if (changedFieldsObj.hasOwnProperty(key)) {
+                                var oldValue = changedFieldsObj[key];
+                                var newValue = oldValue === null ? "null" : oldValue; // Convert null to string "null"
+                                formattedChanges.push(key + ": " + newValue);
+                            }
+                        }
+
+                        // Join the formatted changes into a single string
+                        var formattedChangesString = formattedChanges.join(", ");
 
 
+
+                        if (history.description !== null && history.description !== undefined) {
+                            var dateObject = new Date(history.updated_at);
+                            var options = { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
+                            var formattedDate = new Intl.DateTimeFormat('en-GB', options).format(dateObject);
+                            timeUpdated = ', Updated at '+formattedDate;
+                            //historyHtml += '<li>' + history.changed_fields+' - '+formattedChangesString + timeUpdated + '</li><br>';
+                        historyHtml += '<li>' + history.description + timeUpdated + '</li><br>';
+                        
+                        }
+
+                    });
+                    historyHtml += '</ul>';
+                } else {
+                    historyHtml = 'No History Available.';
+                }
+                $('#assetHistoryContainer').html(historyHtml);
+                $('#assetHistoryModal').modal('show');
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        });
+    }
 
 });
 

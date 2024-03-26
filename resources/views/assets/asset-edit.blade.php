@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('title', 'Add Asset')
+@section('title', 'Edit Asset')
 
 @section('content')
 <br>
@@ -19,7 +19,7 @@
     </p>
   @endif
   
-  <h2>Edit Asset</h2>
+  <h3>EDIT ASSET </h3><h2>( Asset tag: {{ $asset->asset_tag }} )</h2>
 
   <form method="POST" id="assetForm" class="was-validated" style="border: 1px solid #ccc; padding: 20px;" action="{{ route('assets.update', ['asset'=> $asset->id] ); }}" enctype="multipart/form-data">
     @csrf

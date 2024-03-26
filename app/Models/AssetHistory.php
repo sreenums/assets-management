@@ -13,6 +13,7 @@ class AssetHistory extends Model
         'asset_id',
         'action',
         'user_id',
+        'description',
         'changed_fields',
     ];
 

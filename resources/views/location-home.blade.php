@@ -26,7 +26,6 @@
                             <th>Location</th>
                             <th></th>
                             <th></th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody>

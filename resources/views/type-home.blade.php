@@ -24,11 +24,6 @@
                         <tr>
                             <th>Sl no</th>
                             <th>Type Description</th>
-                            <!--<th>Author</th>
-                            <th>Date Published</th>
-                            <th>Comments Count</th>
-                            <th>Status</th>-->
-                            <th></th>
                             <th></th>
                             <th></th>
                         </tr>

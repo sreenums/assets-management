@@ -49,11 +49,8 @@ class AssetController extends Controller
      */
     public function create()
     {
-        //$assetTypes = $this->assetParameterService->showAssetTypes();
-        $assetTypes = Type::all();          //confirm 100
-        //$assetLocations = $this->assetParameterService->showLocations();
+        $assetTypes = Type::all();
         $assetLocations = Location::all();
-        //$users = $this->assetParameterService->showUsers();
         $users = User::all();
 
         return view('assets.asset-add', compact('assetTypes','assetLocations','users'));
@@ -61,6 +58,8 @@ class AssetController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * 
+     * @param StoreAssetRequest $request validated form request
      */
     public function store(StoreAssetRequest $request)
     {
@@ -71,6 +70,8 @@ class AssetController extends Controller
 
     /**
      * Display the specified resource.
+     * 
+     * @param $asset Asset object
      */
     public function show(Asset $asset)
     {
@@ -81,17 +82,16 @@ class AssetController extends Controller
 
     /**
      * Show the form for editing the specified resource.
+     * 
+     * @param $id Asset Id
      */
     public function edit(string $id)
     {
         $asset = $this->assetService->getAssetWithTypeHardwareStandardTechnicalSpecStatusAndLocation($id);
-        //$assetTypes = $this->assetParameterService->showAssetTypes();
-        $assetTypes = Type::all();      //confirm 100
-        //$hardwareStandards = $this->assetParameterService->showHardwareStandard();
-        $hardwareStandards = HardwareStandard::all();   //confirm 100
+        $assetTypes = Type::all();
+        $hardwareStandards = HardwareStandard::all();
         $technicalSpecs = $this->technicalSpecsService->showTechnicalSpecs();
         $assetLocations = $this->assetParameterService->getDynamicLocation($asset->status);
-        //$users = $this->assetParameterService->showUsers();
         $users = User::select('id', 'name')->get();
 
         return view('assets.asset-edit', compact('asset','assetTypes','assetLocations','hardwareStandards','technicalSpecs','users'));
@@ -99,6 +99,9 @@ class AssetController extends Controller
 
     /**
      * Update the specified asset in storage.
+     * 
+     * @param EditAssetRequest $request validated form request
+     * @param $asset Asset object
      */
     public function update(EditAssetRequest $request, Asset $asset)
     {
@@ -109,6 +112,8 @@ class AssetController extends Controller
 
     /**
      * Remove the specified asset from storage.
+     * 
+     * @param $asset Asset object
      */
     public function destroy(Asset $asset)
     {
@@ -121,6 +126,7 @@ class AssetController extends Controller
      * For updating asset status.
      * 
      * @param $request ajax request
+     * @param $id Asset Id
      */
     public function updateStatus(Request $request, $id)
     {
@@ -157,20 +163,6 @@ class AssetController extends Controller
         return response()->json([
             'status' => 'success',
             'subTechnicalSpecs' => $subTechnicalSpecs,
-        ]);
-    }
-
-    /**
-     * Get list of user locations
-     * 
-     */
-    public function getUserLocationsList()
-    {
-        $users = $this->assetService->getUserLocationsList();
-
-        return response()->json([
-            'status' => 'success',
-            'users' => $users,
         ]);
     }
 

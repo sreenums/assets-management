@@ -16,9 +16,7 @@
             <tbody>
                 <tr>
                     <td><a href="{{ route('type.home'); }}"> Asset Type </a></td>
-                    <td>
-                        <!--<a href=" {{ route('assets.type.add'); }} " id="view-user" class="btn btn-primary"> Add Type </a>-->
-                    </td>
+                    <td></td>
                     <td></td>
                 </tr>
                 <tr>

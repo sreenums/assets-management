@@ -139,11 +139,11 @@
                         <!-- Asset history cards -->
                         <div class="card">
                             <div class="card-header">
-                                Asset: Asset Name
+                                Asset tag: {{ $asset->asset_tag }}
                             </div>
-                            <div class="card-body">
-                                <h5 class="card-title">History Details</h5>
-                                <p class="card-text">Details about the asset history...</p>
+                            <div class="card-body" >
+                                <h5 class="card-title">Status History Details</h5>
+                                <p class="card-text" id="assetHistoryDetails">Details about the asset history...</p>
                                 <!-- Add more details as needed -->
                             </div>
                         </div>
@@ -258,31 +258,17 @@
                     historyHtml += '<ul>';
                     histories.forEach(function(history) {
 
-                        var changedFieldsObj = JSON.parse(history.changed_fields);
-
-                        var formattedChanges = [];
-                        // Iterate over the properties of the object
-                        for (var key in changedFieldsObj) {
-                            if (changedFieldsObj.hasOwnProperty(key)) {
-                                var oldValue = changedFieldsObj[key];
-                                var newValue = oldValue === null ? "null" : oldValue; // Convert null to string "null"
-                                formattedChanges.push(key + ": " + newValue);
-                            }
-                        }
-
-                        // Join the formatted changes into a single string
-                        var formattedChangesString = formattedChanges.join(", ");
-
-
-
-                        if (history.description !== null && history.description !== undefined) {
+                        if (history.description !== null && history.description !== undefined ) {
                             var dateObject = new Date(history.updated_at);
                             var options = { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
                             var formattedDate = new Intl.DateTimeFormat('en-GB', options).format(dateObject);
-                            timeUpdated = ', Updated at '+formattedDate;
-                            //historyHtml += '<li>' + history.changed_fields+' - '+formattedChangesString + timeUpdated + '</li><br>';
+                            if(history.action == 'created'){
+                                timeUpdated = ', Created at '+formattedDate;
+                            }else{
+                                timeUpdated = ', Updated at '+formattedDate;
+                            }
+                            
                         historyHtml += '<li>' + history.description + timeUpdated + '</li><br>';
-                        
                         }
 
                     });
@@ -290,7 +276,7 @@
                 } else {
                     historyHtml = 'No History Available.';
                 }
-                $('#assetHistoryContainer').html(historyHtml);
+                $('#assetHistoryDetails').html(historyHtml);
                 $('#assetHistoryModal').modal('show');
             },
             error: function(xhr, status, error) {

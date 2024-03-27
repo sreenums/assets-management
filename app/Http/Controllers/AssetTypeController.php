@@ -28,6 +28,8 @@ class AssetTypeController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * 
+     * @param $request form request
      */
     public function store(Request $request)
     {
@@ -38,6 +40,9 @@ class AssetTypeController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * 
+     * @param $request form request
+     * @param $assets_type Type object
      */
     public function update(Request $request, Type $assets_type)
     {
@@ -48,6 +53,8 @@ class AssetTypeController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     * 
+     * @param $assets_type Type object
      */
     public function destroy(Type $assets_type)
     {

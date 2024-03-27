@@ -72,6 +72,9 @@ class UserController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * 
+     * @param $request - form request
+     * @param $user - User object
      */
     public function update(Request $request, User $user)
     {
@@ -82,6 +85,8 @@ class UserController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     * 
+     * @param $user - User object
      */
     public function destroy(User $user)
     {

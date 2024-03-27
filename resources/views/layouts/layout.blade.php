@@ -65,7 +65,7 @@
     </div>
 
     <div class="container mt-3 d-flex justify-content-end">
-        <a href=" #" class="btn btn-info btn-lg mr-5">
+        <a href="{{ route('logout') }}" class="btn btn-info btn-lg mr-5">
           <span class="glyphicon glyphicon-log-out"></span> Log out
         </a>
     </div>

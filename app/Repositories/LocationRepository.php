@@ -40,9 +40,4 @@ class LocationRepository
        return $this->model->get();
     }
 
-    public function getUserLocationsList()
-    {
-       return $this->model->where('type', 'user')->get();
-    }
-
 }

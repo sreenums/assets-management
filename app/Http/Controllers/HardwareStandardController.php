@@ -26,7 +26,6 @@ class HardwareStandardController extends Controller
     {
         $hardwareStandards = $this->hardwareStandardService->showHardwareStandard();
         $assetTypes = $this->asseTypeService->showAssetTypes();
-        //$hardwareStandard = HardwareStandard::getList();
         
         return view('hardware-home', compact('hardwareStandards','assetTypes'));
     }

@@ -108,7 +108,7 @@
     $(document).ready(function() {
 
         $(document).on('change','#assetsType', function() {
-        $("#hardwareStandard").html("<option value='all'>--Select--</option>");
+        //$("#hardwareStandard").html("<option value='all'>--Select--</option>");
         //$("#technicalSpec").html("<option value=''>--Select--</option>");
           let assetType = $(this).val();
           $.ajax({
@@ -130,9 +130,32 @@
                   }
               }
           })
+        });
+
+      $(document).on('change','#hardwareStandard', function() {
+          $("#technicalSpec").html("<option value=''>--Select--</option>");
+          let hardwareStandard = $(this).val();
+          
+          $.ajax({
+              method: 'post',
+              url: "{{ route('get.hardware.technical.spec') }}",
+              data: {
+                hardwareStandard: hardwareStandard
+              },
+              success: function(res) {
+                  if (res.status == 'success') {
+                      let all_options = "<option value=''>--Select--</option>";
+                      let subTechnicalSpecs = res.subTechnicalSpecs;
+                      $.each(subTechnicalSpecs, function(index, value) {
+                          all_options += "<option value='" + value.id +
+                              "'>" + value.description + "</option>";
+                      });
+
+                      $("#technicalSpec").html(all_options);
+                  }
+              }
+          })
       });
-
-
 
 
     });
@@ -228,6 +251,8 @@
 
             handleFilterChange();
         });
+
+        $('#assets-table thead th').css('background-color', '#c2cbd9');
 
     });
 

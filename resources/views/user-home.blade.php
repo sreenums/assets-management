@@ -74,6 +74,11 @@
                         <label for="email" class="form-label mt-2">Email Id:</label>
                         <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email Id" required>
                         <div class="validation-error"></div>
+                        
+                          <!--<label for="password" class="form-label mt-2">Password:</label>
+                          <input type="password" class="form-control" id="password" placeholder="Enter Password" minlength="8" name="password" required>
+                          <div class="validation-error"></div>-->
+
                         <!-- Add more fields as needed -->
                         <button type="submit" class="btn btn-primary mt-2">Save</button>
                     </form>

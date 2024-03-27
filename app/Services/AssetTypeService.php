@@ -62,4 +62,5 @@ class AssetTypeService
     {
         return $this->assetTypeRepository->deleteType($type);
     }
+    
 }

@@ -26,13 +26,19 @@ class AssetService
     }
 
 
+    /**
+     * Updates an asset with the provided data.
+     *
+     * @param mixed $request The request object containing the update asset data.
+     * @param Asset $asset The asset to be updated.
+     * @return Asset The updated asset.
+     */
     public function updateAsset($request, $asset)
     {
         // Initialize user_id and location_id variables
         $userId = NULL;
         $locationId = $request->assetLocation;
-        //dd($request->assetStatus);
-        // Check if status is 2
+        
         if ($request->assetStatus == 2) {
             $userId = $request->assetLocation;
             $locationId = NULL;
@@ -74,14 +80,6 @@ class AssetService
     }
 
     /**
-     * Get list of users
-     */
-    public function getUserLocationsList()
-    {
-        return $this->locationRepository->getUserLocationsList();
-    }
-
-    /**
      * Get list of locations
      */
     public function getLocations()
@@ -89,6 +87,12 @@ class AssetService
         return $this->locationRepository->getLocations();
     }
 
+    /**
+     * Creates an asset using the provided request data.
+     *
+     * @param $request The request data for creating the asset.
+     * @return mixed The created asset.
+     */
     public function createAsset($request)
     {
         $assetData = $this->getAssetCreateData($request);
@@ -99,6 +103,7 @@ class AssetService
      * Generate the post data
      * 
      * @param $request Form data
+     * @return array of data for creating asset
      */
     public function getAssetCreateData($request)
     {
@@ -114,11 +119,23 @@ class AssetService
         ];
     }
 
+    /**
+     * Deletes an asset using the asset repository.
+     *
+     * @param $asset The asset to be deleted.
+     * @return bool True if the asset was successfully deleted, false otherwise.
+     */
     public function deleteAsset($asset)
     {
         return $this->assetRepository->deleteAsset($asset);
     }
 
+    /**
+     * Update status of an asset
+     * 
+     * @param $request - ajax request data
+     * @param $id - asset id
+     */
     public function updateStatus($request, $id)
     {
         // Initialize user_id and location_id variables
@@ -139,11 +156,22 @@ class AssetService
         return $this->assetRepository->updateStatus($id, $updateStatusData);
     }
 
+    /**
+     * Get the list of assets with type, hardware, standard, technical spec, status, and location.
+     *
+     */
     public function getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation()
     {
         return $this->assetRepository->getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation();
     }
 
+    /**
+     * Filter the asset based on the given request and assets.
+     *
+     * @param $request The request object.
+     * @param $assets The assets to filter.
+     * @return The filtered assets.
+     */
     public function FilterAsset($request, $assets)
     {
         return $this->assetRepository->FilterAsset($request, $assets);
@@ -151,6 +179,8 @@ class AssetService
 
     /**
      * Format data for data table
+     * 
+     * @param $assets - list of assets
      */
     public function formatDataTable($assets)
     {
@@ -175,6 +205,12 @@ class AssetService
         });
     }
 
+    /**
+     * Retrieves the asset with the specified ID, along with its type, hardware standard, technical specifications, status, and location.
+     *
+     * @param int $assetId The ID of the asset to retrieve.
+     * @return The asset object with the specified ID and additional information.
+     */
     public function getAssetWithTypeHardwareStandardTechnicalSpecStatusAndLocation($assetId)
     {
         return $this->assetRepository->getAssetWithTypeHardwareStandardTechnicalSpecStatusAndLocation($assetId);
@@ -186,5 +222,6 @@ class AssetService
     public function loadAsset($asset)
     {
         return $this->assetRepository->loadAsset($asset);
-    }   
+    }
+       
 }

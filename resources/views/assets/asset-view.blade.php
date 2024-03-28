@@ -158,12 +158,6 @@
 <script>
   $(document).ready(function() {
 
-    // $('body').on('click', '#history', function (e) {
-    //     e.preventDefault();
-    //     $('#assetHistoryModal').modal('show');
-    // });
-
-
     $('body').on('click', '#changeStatus', function (e) {
 
         e.preventDefault();

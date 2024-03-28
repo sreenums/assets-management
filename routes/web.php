@@ -29,9 +29,7 @@ use Illuminate\Support\Facades\Route;
 //         return view('home');
 //     })->name('assets.index');
 
-Route::get('/assets-parameters', function () {
-            return view('assets-parameters');
-    })->name('asset.parameters');
+
 
 // Route::get('/assets-type-add', function () {
 //     return view('assets-parameters');
@@ -51,15 +49,19 @@ Route::get('/logot', [LoginController::class, 'logout'])->name('logout');
 
 Route::middleware([Authenticate::class])->group(function () {
 
+    Route::get('/assets-parameters', function () {
+            return view('assets-parameters');
+    })->name('asset.parameters');
+
     Route::get('/assets-type-home', [AssetTypeController::class, 'index'])->name('type.home');
-    // Route::put('/assets-type-home', [AssetTypeController::class, 'index'])->name('type.home');
     Route::resource('/assets-type', AssetTypeController::class);
 
     /**
      * For Hardware Standard
      * 
      */
-    Route::resource('/hardware-standard', HardwareStandardController::class);
+    Route::get('/hardware-standard-home', [HardwareStandardController::class, 'index'])->name('hardware-standard.home');
+    Route::resource('/hardware-standard', HardwareStandardController::class)->except(['show']);
 
     /**
      * For Technical Specs
@@ -85,7 +87,7 @@ Route::middleware([Authenticate::class])->group(function () {
      */
     Route::resource('/assets', AssetController::class);
 
-    //For Hardware with type
+    //For Hardware standard with type
     Route::post('/type-hardware-standard',[AssetController::class, 'getHardwareStandardWithType'])->name('get.type.hardwares');
 
     //For Technical spec with hardware standard
@@ -106,3 +108,9 @@ Route::middleware([Authenticate::class])->group(function () {
     Route::get('/assets/{asset}/history', [HistoryController::class, 'showHistory'])->name('asset.history');
 
 });
+
+
+// // Fallback route for 404 handling
+// Route::fallback(function () {
+//     return view('page-error'); // Load the custom 404 page
+// });

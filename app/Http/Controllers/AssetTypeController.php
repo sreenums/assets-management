@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Type;
 use App\Services\AssetTypeService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -48,7 +49,7 @@ class AssetTypeController extends Controller
     {
         $this->assetTypeService->updateType($request, $assets_type);
 
-        return response()->json(['message' => 'Type has been updated successfully!']);
+        return response()->json(['message' => 'Asset type has been updated successfully!']);
     }
 
     /**
@@ -58,10 +59,19 @@ class AssetTypeController extends Controller
      */
     public function destroy(Type $assets_type)
     {
-        // Call the asset service to delete the type
-        $this->assetTypeService->deleteType($assets_type);
+        try {
+            $this->assetTypeService->deleteType($assets_type);
 
-        return response()->json(['success' => 'Type Deleted Successfully!']);
+            return response()->json(['success' => 'Asset type Deleted Successfully!']);
+            
+        } catch (QueryException $e) {
+            // Check if the exception is due to a unique constraint violation
+            if ($e->getCode() === '23000') {
+                return response()->json(['error' => 'Hardware standard is added for the Asset type, Please delete it first!!']);
+            }else{
+                return response()->json(['error' => 'An unexpected error occurred!!']);
+            }
+        }
     }
     
 }

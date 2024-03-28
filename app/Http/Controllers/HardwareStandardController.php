@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\HardwareStandard;
 use App\Services\HardwareStandardService;
 use App\Services\AssetTypeService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class HardwareStandardController extends Controller
@@ -52,7 +53,7 @@ class HardwareStandardController extends Controller
     {
         $this->hardwareStandardService->updateHardwareStandard($request, $hardware_standard);
 
-        return response()->json(['message' => 'Type has been updated successfully!']);
+        return response()->json(['message' => 'Hardware standard has been updated successfully!']);
     }
 
     /**
@@ -62,8 +63,18 @@ class HardwareStandardController extends Controller
      */
     public function destroy(HardwareStandard $hardware_standard)
     {
-        $this->hardwareStandardService->deleteHardwareStandard($hardware_standard);
+        try {
+            $this->hardwareStandardService->deleteHardwareStandard($hardware_standard);
 
-        return response()->json(['success' => 'Type Deleted Successfully!']);
+            return response()->json(['success' => 'Hardware Standard Deleted Successfully!']);
+            
+        } catch (QueryException $e) {
+            // Check if the exception is due to a unique constraint violation
+            if ($e->getCode() === '23000') {
+                return response()->json(['error' => 'Technical Specification is added for the Hardware standard, Please delete it first!!']);
+            }else{
+                return response()->json(['error' => 'An unexpected error occurred!!']);
+            }
+        }    
     }
 }

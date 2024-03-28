@@ -65,7 +65,7 @@
                     @csrf
                         <!-- Form fields for collecting data -->
                         <input type="text" name="assetLocation" id="assetLocation" placeholder="Enter location" class="form-control" required>
-                        <!-- Add more fields as needed -->
+                        
                         <button type="submit" class="btn btn-primary mt-2">Save</button>
                     </form>
                   </div>
@@ -91,7 +91,7 @@
                       @method('PUT')
                         <!-- Form fields for Editing data -->
                         <input type="text" name="editLocation" id="editLocation" placeholder="Edit location" class="form-control" required>
-                        <!-- Add more fields as needed -->
+                        
                         <button type="submit" class="btn btn-primary mt-2">Save</button>
                     </form>
                   </div>
@@ -185,7 +185,7 @@
           $('#locationModal').modal('hide');
           alert(response.message);
 
-                 // Append new <tr> to posts-table with data from response
+        // Append new <tr> to posts-table with data from response
         var newRow = '<tr>' +
                       '<td>New</td>' +
                       '<td>' + response.type + '</td>' +
@@ -210,7 +210,7 @@
       //Delete Post
       $('body').on('click', '#delete-location', function () {
 
-        // Get the ID of the technical spec to be edited
+        // Get the ID of location to be edited
         var locationId = $(this).data('location-id');
         
         var typeUrl = "{{ route('locations.destroy', ['location' => ':id']) }}";
@@ -224,8 +224,13 @@
                   dataType: 'json',
 
                   success: function(data) {
+                    if (data.error) {
+                      alert(data.error);
+                      return;
+                    }else{
                       alert(data.success);
                       trObj.parents("tr").remove();
+                    }
                   }
               });
         }

@@ -3,28 +3,15 @@
 namespace App\Services;
 
 use App\Repositories\AssetRepository;
-use App\Repositories\HardwareStandardRepository;
-use App\Repositories\TechnicalSpecsRepository;
-use App\Repositories\UserRepository;
-use App\Repositories\LocationRepository;
 
 class AssetService
 {
     protected $assetRepository;
-    protected $hardwareStandardRepository;
-    protected $technicalSpecsRepository;
-    protected $userRepository;
-    protected $locationRepository;
 
-    public function __construct(AssetRepository $assetRepository, HardwareStandardRepository $hardwareStandardRepository, TechnicalSpecsRepository $technicalSpecsRepository,UserRepository $userRepository,LocationRepository $locationRepository)
+    public function __construct(AssetRepository $assetRepository)
     {
         $this->assetRepository = $assetRepository;
-        $this->hardwareStandardRepository = $hardwareStandardRepository;
-        $this->technicalSpecsRepository = $technicalSpecsRepository;
-        $this->userRepository = $userRepository;
-        $this->locationRepository = $locationRepository;
     }
-
 
     /**
      * Updates an asset with the provided data.
@@ -57,34 +44,6 @@ class AssetService
         ];
 
         return $type = $this->assetRepository->updateAsset($asset, $assetData);
-    }
-
-    /**
-     * Get list of hardware standards for an asset type
-     * 
-     * @param $request - ajax request data(assetType)
-     */
-    public function getHardwareStandardWithType($request)
-    {
-        return $this->hardwareStandardRepository->getHardwareStandardWithType($request);
-    }
-
-    /**
-     * Get list of technical specs with hardware standard
-     * 
-     * @param $request - ajax request data
-     */
-    public function getTechnicalSpecsWithHardwareStandard($request)
-    {
-        return $this->technicalSpecsRepository->getTechnicalSpecsWithHardwareStandard($request);
-    }
-
-    /**
-     * Get list of locations
-     */
-    public function getLocations()
-    {
-        return $this->locationRepository->getLocations();
     }
 
     /**

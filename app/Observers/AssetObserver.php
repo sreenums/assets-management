@@ -153,7 +153,7 @@ class AssetObserver
                 'asset_id' => $asset->id,
                 'action' => 'updated',
                 'description' => $description,
-                'user_id' => auth()->id(), // Assuming you have authentication set up
+                'user_id' => auth()->id(),
                 'changed_fields' => json_encode($changedFields),
             ]);
         }

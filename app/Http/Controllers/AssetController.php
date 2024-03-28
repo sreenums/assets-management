@@ -10,8 +10,8 @@ use App\Models\Location;
 use App\Models\TechnicalSpecifications;
 use App\Models\Type;
 use App\Models\User;
+use App\Services\AssetFilterService;
 use Illuminate\Http\Request;
-use App\Services\AssetParameterService;
 use App\Services\TechnicalSpecsService;
 use App\Services\AssetService;
 use Illuminate\Support\Facades\DB;
@@ -20,13 +20,13 @@ use Illuminate\Support\Facades\Log;
 class AssetController extends Controller
 {
 
-    protected $assetParameterService;
+    protected $assetFilterService;
     protected $technicalSpecsService;
     protected $assetService;
 
-    public function __construct(AssetParameterService $assetParameterService, TechnicalSpecsService $technicalSpecsService, AssetService $assetService)
+    public function __construct(AssetFilterService $assetFilterService, TechnicalSpecsService $technicalSpecsService, AssetService $assetService)
     {
-        $this->assetParameterService = $assetParameterService;
+        $this->assetFilterService = $assetFilterService;
         $this->technicalSpecsService = $technicalSpecsService;
         $this->assetService = $assetService;
     }
@@ -49,9 +49,9 @@ class AssetController extends Controller
      */
     public function create()
     {
-        $assetTypes = Type::all();
-        $assetLocations = Location::all();
-        $users = User::all();
+        $assetTypes = Type::select('id', 'type')->get();
+        $assetLocations = Location::select('id', 'name')->get();
+        $users = User::select('id', 'name')->get();
 
         return view('assets.asset-add', compact('assetTypes','assetLocations','users'));
     }
@@ -69,7 +69,7 @@ class AssetController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified asset.
      * 
      * @param $asset Asset object
      */
@@ -88,10 +88,10 @@ class AssetController extends Controller
     public function edit(string $id)
     {
         $asset = $this->assetService->getAssetWithTypeHardwareStandardTechnicalSpecStatusAndLocation($id);
-        $assetTypes = Type::all();
-        $hardwareStandards = HardwareStandard::all();
+        $assetTypes = Type::select('id', 'type')->get();
+        $hardwareStandards = HardwareStandard::select('id', 'description')->get();
         $technicalSpecs = $this->technicalSpecsService->showTechnicalSpecs();
-        $assetLocations = $this->assetParameterService->getDynamicLocation($asset->status);
+        $assetLocations = $this->assetFilterService->getDynamicLocation($asset->status);
         $users = User::select('id', 'name')->get();
 
         return view('assets.asset-edit', compact('asset','assetTypes','assetLocations','hardwareStandards','technicalSpecs','users'));
@@ -142,8 +142,7 @@ class AssetController extends Controller
      */
     public function getHardwareStandardWithType(Request $request)
     {
-        //$subHardwareStandards = $this->model->where('type_id', $request->assetType)->get();
-        $subHardwareStandards = $this->assetService->getHardwareStandardWithType($request);
+        $subHardwareStandards = $this->assetFilterService->getHardwareStandardWithType($request);
 
         return response()->json([
             'status' => 'success',
@@ -158,7 +157,7 @@ class AssetController extends Controller
      */
     public function getTechnicalSpecsWithHardwareStandard(Request $request)
     {
-        $subTechnicalSpecs = $this->assetService->getTechnicalSpecsWithHardwareStandard($request);
+        $subTechnicalSpecs = $this->assetFilterService->getTechnicalSpecsWithHardwareStandard($request);
 
         return response()->json([
             'status' => 'success',
@@ -171,7 +170,7 @@ class AssetController extends Controller
      */
     public function getLocations()
     {
-        $locations = $this->assetService->getLocations();
+        $locations = $this->assetFilterService->getLocations();
         return response()->json([
             'status' => 'success',
             'locations' => $locations,

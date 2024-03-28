@@ -33,11 +33,11 @@
       max-width: 790px;
     }
 
-    .user-image {
-      width: 550px;
-      height: 250px;
+    .custom-tr {
+        height: 65px;
+        vertical-align: middle;
+        font-size: 18px;
     }
-    
   </style>
   <script type="text/javascript">
   

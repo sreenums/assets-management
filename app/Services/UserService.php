@@ -34,14 +34,17 @@ class UserService
             'assetUser' => 'required|string|max:255|unique:users,name',
             'email' => 'required|email|max:255|unique:users,email',
         ]);
+        if($request->password){
+            $password = $request->password;
+        }else{
+            $password = $request->email;
+        }
         
-        $data = ['name' => $request->assetUser, 'email' => $request->email];
-        $locationData = ['name' => $request->assetUser, 'type' => 'user'];
-        
-        /**
-         * To save user locations
-         */
-        //$locationUser = $this->locationRepository->addLocation($locationData);
+        $data = [
+            'name' => $request->assetUser, 
+            'email' => $request->email,
+            'password' => bcrypt($password),
+        ];
 
         return $this->userRepository->addUser($data);
     }

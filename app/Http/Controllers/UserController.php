@@ -6,6 +6,7 @@ use App\Models\User;
 //use App\Services\userService;
 use App\Services\UserService;
 use Exception;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -90,9 +91,19 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        $this->userService->deleteUser($user);
+        try {
+            $this->userService->deleteUser($user);
 
-        return response()->json(['success' => 'Type Deleted Successfully!']);
+            return response()->json(['success' => 'User Deleted Successfully!']);
+
+        } catch (QueryException $e) {
+            // Check if the exception is due to a unique constraint violation
+            if ($e->getCode() === '23000') {
+                return response()->json(['error' => 'An asset is added for the user, Please delete it first!!']);
+            }else{
+                return response()->json(['error' => 'An unexpected error occurred!!']);
+            }
+        }
     }
 
     /**

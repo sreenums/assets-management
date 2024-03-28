@@ -75,11 +75,10 @@
                         <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email Id" required>
                         <div class="validation-error"></div>
                         
-                          <!--<label for="password" class="form-label mt-2">Password:</label>
+                          <label for="password" class="form-label mt-2">Password:</label>
                           <input type="password" class="form-control" id="password" placeholder="Enter Password" minlength="8" name="password" required>
-                          <div class="validation-error"></div>-->
+                          <div class="validation-error"></div>
 
-                        <!-- Add more fields as needed -->
                         <button type="submit" class="btn btn-primary mt-2">Save</button>
                     </form>
                   </div>
@@ -254,8 +253,21 @@
                   dataType: 'json',
 
                   success: function(data) {
+
+                    if (data.error) {
+                      alert(data.error);
+                      return;
+                    }else{
                       alert(data.success);
                       trObj.parents("tr").remove();
+                    }
+
+                  },
+                  error: function(xhr) {
+                      if (xhr.status === 422) {
+                          //var errorMessage = JSON.parse(xhr.responseText).error;
+                          alert('Asset added for the user, Please delete it first'); // Display alert with error message
+                      }
                   }
               });
         }

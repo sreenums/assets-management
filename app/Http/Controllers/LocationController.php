@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Location;
 // use App\Services\AssetParameterService;
 use App\Services\LocationService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class LocationController extends Controller
@@ -60,8 +61,18 @@ class LocationController extends Controller
      */
     public function destroy(Location $location)
     {
-        $this->locationService->deleteLocation($location);
+        try {
+            $this->locationService->deleteLocation($location);
 
-        return response()->json(['success' => 'Location Deleted Successfully!']);
+            return response()->json(['success' => 'Location Deleted Successfully!']);
+            
+        } catch (QueryException $e) {
+            // Check if the exception is due to a unique constraint violation
+            if ($e->getCode() === '23000') {
+                return response()->json(['error' => 'An asset is added for the location, Please delete it first!!']);
+            }else{
+                return response()->json(['error' => 'An unexpected error occurred!!']);
+            }
+        }
     }
 }

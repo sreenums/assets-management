@@ -5,21 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\TechnicalSpecifications;
 use App\Services\TechnicalSpecsService;
 use App\Services\HardwareStandardService;
-use App\Services\AssetParameterService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class TechnicalSpecificationsController extends Controller
 {
 
     protected $technicalSpecsService;
-    protected $assetParameterService;
     protected $hardwareStandardService;
 
     /**
      * Constructs a new instance of the class.
      *
      * @param TechnicalSpecsService $technicalSpecsService The technical specifications service.
-     * @param assetParameterService $assetParameterService The asset service.
+     * @param HardwareStandardService $hardwareStandardService The hardware standard service.
      */
     public function __construct(TechnicalSpecsService $technicalSpecsService, HardwareStandardService $hardwareStandardService)
     {
@@ -70,8 +69,18 @@ class TechnicalSpecificationsController extends Controller
      */
     public function destroy(TechnicalSpecifications $technicalSpec)
     {
-        $this->technicalSpecsService->deleteTechnicalSpec($technicalSpec);
+        try {
+            $this->technicalSpecsService->deleteTechnicalSpec($technicalSpec);
 
-        return response()->json(['success' => 'Type Deleted Successfully!']);
+            return response()->json(['success' => 'Tecnical Specification Deleted Successfully!']);
+
+        } catch (QueryException $e) {
+            // Check if the exception is due to a unique constraint violation
+            if ($e->getCode() === '23000') {
+                return response()->json(['error' => 'An asset is added for the technical specification, Please delete it first!!']);
+            }else{
+                return response()->json(['error' => 'An unexpected error occurred!!']);
+            }
+        }
     }
 }

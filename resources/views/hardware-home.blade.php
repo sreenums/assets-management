@@ -106,7 +106,7 @@
                         <!-- Form fields for Editing data -->
                         <label for="editHardwareStandard">Hardware Standard:</label>
                         <input type="text" name="editHardwareStandard" id="editHardwareStandard" placeholder="Edit hardware standard" class="form-control" required>
-                        <!-- Add more fields as needed -->
+                        
                         <button type="submit" class="btn btn-primary mt-2">Save</button>
                     </form>
                   </div>
@@ -200,7 +200,7 @@
           $('#hardwareModal').modal('hide'); // Close the modal
           alert(response.message);
 
-                 // Append new <tr> to posts-table with data from response
+        // Append new <tr> to posts-table with data from response
         var newRow = '<tr>' +
                       '<td>New</td>' +
                       '<td>' + response.type + '</td>' +
@@ -240,8 +240,13 @@
                   dataType: 'json',
 
                   success: function(data) {
+                    if (data.error) {
+                      alert(data.error);
+                      return;
+                    }else{
                       alert(data.success);
                       trObj.parents("tr").remove();
+                    }
                   }
               });
         }

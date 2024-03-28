@@ -73,6 +73,7 @@
                         <!-- Form fields for collecting data -->
                         <label for="tecnicalSpec">Technical Specification:</label>
                         <input type="text" name="tecnicalSpec" id="tecnicalSpec" placeholder="Enter technical specification" class="form-control" required>
+                        
                         <button type="submit" class="btn btn-primary mt-2">Save</button>
                     </form>
                   </div>
@@ -107,7 +108,7 @@
                         <!-- Form fields for Editing data -->
                         <label for="editTechnicalSpec">Technical Specification:</label>
                         <input type="text" name="editTechnicalSpec" id="editTechnicalSpec" placeholder="Edit technical specification" class="form-control" required>
-                        <!-- Add more fields as needed -->
+                        
                         <button type="submit" class="btn btn-primary mt-2">Save</button>
                     </form>
                   </div>
@@ -203,7 +204,7 @@
           $('#technicalSpecModal').modal('hide');
           alert(response.message);
 
-                 // Append new <tr> to posts-table with data from response
+        // Append new <tr> to posts-table with data from response
         var newRow = '<tr>' +
                       '<td>New</td>' +
                       '<td>' + response.type + '</td>' +
@@ -242,8 +243,13 @@
                   dataType: 'json',
 
                   success: function(data) {
+                    if (data.error) {
+                      alert(data.error);
+                      return;
+                    }else{
                       alert(data.success);
                       trObj.parents("tr").remove();
+                    }
                   }
               });
         }

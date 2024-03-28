@@ -65,7 +65,7 @@
                     @csrf
                         <!-- Form fields for collecting data -->
                         <input type="text" name="assetType" id="assetType" placeholder="Enter asset type" class="form-control" required>
-                        <!-- Add more fields as needed -->
+                        
                         <button type="submit" class="btn btn-primary mt-2">Save</button>
                     </form>
                   </div>
@@ -91,7 +91,7 @@
                       @method('PUT')
                         <!-- Form fields for Editing data -->
                         <input type="text" name="editAssetType" id="editAssetType" placeholder="Edit asset type" class="form-control" required>
-                        <!-- Add more fields as needed -->
+
                         <button type="submit" class="btn btn-primary mt-2">Save</button>
                     </form>
                   </div>
@@ -224,8 +224,13 @@
                   dataType: 'json',
 
                   success: function(data) {
+                    if (data.error) {
+                      alert(data.error);
+                      return;
+                    }else{
                       alert(data.success);
                       trObj.parents("tr").remove();
+                    }
                   }
               });
         }

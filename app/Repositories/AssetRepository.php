@@ -24,7 +24,7 @@ class AssetRepository
         return $asset->update($locationData);
     }
 
-    public function getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation()
+    public function getAssetsList()
     {
         return Asset::with(['type:id,type', 'hardwareStandard:id,description','technicalSpecification:id,description','location:id,name']);
     }
@@ -91,7 +91,7 @@ class AssetRepository
         return $asset->update($updateStatusData);
     }
 
-    public function getAssetWithTypeHardwareStandardTechnicalSpecStatusAndLocation($assetId)
+    public function getAsset($assetId)
     {
         return $this->model->with(['type:id,type', 'hardwareStandard:id,description','technicalSpecification:id,description','location:id,name'])->findOrFail($assetId);
     }

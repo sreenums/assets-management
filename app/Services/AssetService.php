@@ -89,39 +89,15 @@ class AssetService
         return $this->assetRepository->deleteAsset($asset);
     }
 
-    /**
-     * Update status of an asset
-     * 
-     * @param $request - ajax request data
-     * @param $id - asset id
-     */
-    public function updateStatus($request, $id)
-    {
-        // Initialize user_id and location_id variables
-        $userId = NULL;
-        $locationId = $request->assetLocationEdit;
-        
-        if ($request->assetStatusChange == 2) {
-            $userId = $request->assetLocationEdit;
-            $locationId = NULL;
-        }
 
-        $updateStatusData = [
-            'status' => $request->assetStatusChange,
-            'location_id' => $locationId,
-            'user_id' => $userId,
-        ];
-
-        return $this->assetRepository->updateStatus($id, $updateStatusData);
-    }
 
     /**
      * Get the list of assets with type, hardware, standard, technical spec, status, and location.
      *
      */
-    public function getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation()
+    public function getAssetsList()
     {
-        return $this->assetRepository->getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation();
+        return $this->assetRepository->getAssetsList();
     }
 
     /**
@@ -170,9 +146,9 @@ class AssetService
      * @param int $assetId The ID of the asset to retrieve.
      * @return The asset object with the specified ID and additional information.
      */
-    public function getAssetWithTypeHardwareStandardTechnicalSpecStatusAndLocation($assetId)
+    public function getAsset($assetId)
     {
-        return $this->assetRepository->getAssetWithTypeHardwareStandardTechnicalSpecStatusAndLocation($assetId);
+        return $this->assetRepository->getAsset($assetId);
     }
 
     /**

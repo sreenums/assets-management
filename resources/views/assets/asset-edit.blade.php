@@ -91,10 +91,14 @@
     <div class="col-md-3 mt-2">
       <label for="assetStatus" class="form-label">Status</label>
       <select id="assetStatus" name="assetStatus" class="form-select" required>
-        <option value="">--Select--</option>
+        <!--<option value="">--Select--</option>
         <option value="1" {{ $asset->status == 1 ? 'selected' : '' }}>Brand New</option>
         <option value="2" {{ $asset->status == 2 ? 'selected' : '' }}>Assigned</option>
-        <option value="3" {{ $asset->status == 3 ? 'selected' : '' }}>Damaged</option>
+        <option value="3" {{ $asset->status == 3 ? 'selected' : '' }}>Damaged</option>-->
+        <option value="">--Select--</option>
+        @foreach($statuses as $status)
+            <option value="{{ $status->id }}" {{ $asset->status == $status->id ? 'selected' : '' }} >{{ $status->name }}</option>
+        @endforeach
       </select>
     </div>
 

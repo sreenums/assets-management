@@ -7,15 +7,15 @@ use App\Http\Requests\StoreAssetRequest;
 use App\Models\Asset;
 use App\Models\HardwareStandard;
 use App\Models\Location;
-use App\Models\TechnicalSpecifications;
+use App\Models\Status;
 use App\Models\Type;
 use App\Models\User;
 use App\Services\AssetFilterService;
+use App\Services\AssetHistoryService;
 use Illuminate\Http\Request;
 use App\Services\TechnicalSpecsService;
 use App\Services\AssetService;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use App\Services\StatusService;
 
 class AssetController extends Controller
 {
@@ -23,12 +23,16 @@ class AssetController extends Controller
     protected $assetFilterService;
     protected $technicalSpecsService;
     protected $assetService;
+    protected $statusService;
+    protected $assetHistoryService;
 
-    public function __construct(AssetFilterService $assetFilterService, TechnicalSpecsService $technicalSpecsService, AssetService $assetService)
+    public function __construct(AssetFilterService $assetFilterService, TechnicalSpecsService $technicalSpecsService, AssetService $assetService, StatusService $statusService, AssetHistoryService $assetHistoryService)
     {
         $this->assetFilterService = $assetFilterService;
         $this->technicalSpecsService = $technicalSpecsService;
         $this->assetService = $assetService;
+        $this->statusService = $statusService;
+        $this->assetHistoryService = $assetHistoryService;
     }
 
     /**
@@ -36,10 +40,10 @@ class AssetController extends Controller
      */
     public function index(Request $request)
     {
-        $assets = $this->assetService->getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation();
-        $assetTypes = Type::all();
-        $hardwareStandards = HardwareStandard::all();
-        $technicalSpecs = TechnicalSpecifications::all();
+        $assets = $this->assetService->getAssetsList();
+        $assetTypes = Type::select('id', 'type')->get();
+        $hardwareStandards = HardwareStandard::select('id', 'description')->get();
+        $technicalSpecs = $this->technicalSpecsService->showTechnicalSpecs();
 
         return view('home',compact('assets','assetTypes','hardwareStandards','technicalSpecs'));
     }
@@ -76,8 +80,10 @@ class AssetController extends Controller
     public function show(Asset $asset)
     {
         $asset = $this->assetService->loadAsset($asset);
+        $statuses = $this->statusService->getAssetStatuses();
+        $histories = $this->assetHistoryService->getAssetHistory($asset->id);
 
-        return view('assets.asset-view', compact('asset')); //, compact('asset','assetStatusText')
+        return view('assets.asset-view', compact('asset','statuses','histories')); //, compact('asset','assetStatusText')
     }
 
     /**
@@ -87,14 +93,15 @@ class AssetController extends Controller
      */
     public function edit(string $id)
     {
-        $asset = $this->assetService->getAssetWithTypeHardwareStandardTechnicalSpecStatusAndLocation($id);
+        $asset = $this->assetService->getAsset($id);
         $assetTypes = Type::select('id', 'type')->get();
         $hardwareStandards = HardwareStandard::select('id', 'description')->get();
         $technicalSpecs = $this->technicalSpecsService->showTechnicalSpecs();
         $assetLocations = $this->assetFilterService->getDynamicLocation($asset->status);
         $users = User::select('id', 'name')->get();
+        $statuses = Status::select('id', 'name')->get();
 
-        return view('assets.asset-edit', compact('asset','assetTypes','assetLocations','hardwareStandards','technicalSpecs','users'));
+        return view('assets.asset-edit', compact('asset','assetTypes','assetLocations','hardwareStandards','technicalSpecs','users','statuses'));
     }
 
     /**
@@ -130,7 +137,7 @@ class AssetController extends Controller
      */
     public function updateStatus(Request $request, $id)
     {
-        $this->assetService->updateStatus($request, $id);
+        $this->statusService->updateStatus($request, $id);
 
         return response()->json(['message' => 'Status has been updated successfully!']);
     }
@@ -187,7 +194,7 @@ class AssetController extends Controller
         if ($request->ajax()) {  
         
             // Get assets list with required attributes
-            $assets = $this->assetService->getAssetsListWithTypeHardwareStandardTechnicalSpecStatusAndLocation();
+            $assets = $this->assetService->getAssetsList();
         
             // Total records before filtering
             $totalRecords = $assets->count();

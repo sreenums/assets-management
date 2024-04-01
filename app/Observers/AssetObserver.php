@@ -2,10 +2,12 @@
 
 namespace App\Observers;
 
+use App\Jobs\CreateAssetHistory;
 use App\Models\Asset;
 use App\Models\AssetHistory;
 use App\Models\HardwareStandard;
 use App\Models\Location;
+use App\Models\Status;
 use App\Models\TechnicalSpecifications;
 use App\Models\Type;
 use App\Models\User;
@@ -22,14 +24,9 @@ class AssetObserver
     {
         $user = User::select('id', 'name')->findOrFail(auth()->id());
         $description = "Asset created by $user->name";
-
-        AssetHistory::create([
-            'asset_id' => $asset->id,
-            'action' => 'created',
-            'description' => $description,
-            'user_id' => auth()->id(), // id from authentication set up
-            'changed_fields' => null, 
-        ]);
+    
+        // Dispatch the job to create asset history
+        CreateAssetHistory::dispatch($asset, 'created', $description);
     }
 
     /**
@@ -56,16 +53,13 @@ class AssetObserver
                 // Check if the "status" field is among the changed fields
                 if (array_key_exists('status', $changedFields)) {
 
-                    $statusLabels = [
-                        1 => 'Brand new',
-                        2 => 'Assigned',
-                        3 => 'Damaged',
-                    ];
+                    $statuses = Status::pluck('name', 'id')->toArray();
 
                     // Set the status label values
-                    $oldStatusLabel = $statusLabels[$oldStatus] ?? $oldStatus;
-                    $newStatusLabel = $statusLabels[$newStatus] ?? $newStatus;
+                    $oldStatusLabel = $statuses[$oldStatus] ?? $oldStatus;
+                    $newStatusLabel = $statuses[$newStatus] ?? $newStatus;
                     $statusDescription ="Status changed from '$oldStatusLabel' to  '$newStatusLabel'";
+
                 }
 
                 $userIds = [auth()->id(), $asset->user_id];
@@ -148,14 +142,20 @@ class AssetObserver
 
                 $description = ltrim($description,', ');
 
-
-            AssetHistory::create([
+            $assetHistoryData = [
                 'asset_id' => $asset->id,
                 'action' => 'updated',
                 'description' => $description,
                 'user_id' => auth()->id(),
                 'changed_fields' => json_encode($changedFields),
-            ]);
+            ];
+
+            if (array_key_exists('status', $changedFields)) {
+                $assetHistoryData['status_from'] = $oldStatus;
+                $assetHistoryData['status_to'] = $asset->status;
+            }
+
+            AssetHistory::create($assetHistoryData);
         }
     }
 

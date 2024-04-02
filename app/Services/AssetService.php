@@ -122,7 +122,7 @@ class AssetService
         return $assets->map(function($asset) {
 
             $location = '';
-            if ($asset->status == 2) {
+            if ($asset->status_text == 'Assigned') {
                 $location = $asset->user->name;
             } else {
                 $location = $asset->location->name;

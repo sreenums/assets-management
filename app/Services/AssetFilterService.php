@@ -27,8 +27,7 @@ class AssetFilterService
      */
     public function getDynamicLocation($assetStatus)
     {   
-        //User assigned
-        if($assetStatus == '2'){
+        if($assetStatus == 'Assigned'){
             return $this->userRepository->getUsers();
         }else{
             return $this->locationRepository->getLocations();

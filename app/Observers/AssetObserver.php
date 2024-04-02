@@ -22,11 +22,12 @@ class AssetObserver
      */
     public function created(Asset $asset)
     {
-        $user = User::select('id', 'name')->findOrFail(auth()->id());
+        $authUserId = auth()->id();
+        $user = User::select('id', 'name')->findOrFail($authUserId);
         $description = "Asset created by $user->name";
     
         // Dispatch the job to create asset history
-        CreateAssetHistory::dispatch($asset, 'created', $description);
+        CreateAssetHistory::dispatch($asset, $authUserId, 'created', $description, NULL, NULL);
     }
 
     /**
@@ -37,126 +38,11 @@ class AssetObserver
      */
     public function updated(Asset $asset)
     {
-        $changedFields = $asset->getChanges();
+        $authUserId = auth()->id();
+        $changedFieldsUpdate = $asset->getChanges();
+        $updateOriginalFields = $asset->getOriginal();
+        CreateAssetHistory::dispatch($asset, $authUserId, 'updated', NULL, $changedFieldsUpdate, $updateOriginalFields);
 
-        // Remove the 'updated_at' field from the array if it exists
-        unset($changedFields['updated_at']);
-
-        if (!empty($changedFields)) {
-
-            $description = NULL; $statusDescription = '';
-
-            // Capture the status before and after the update
-            $oldStatus = $asset->getOriginal('status');
-            $newStatus = $asset->status;
-
-                // Check if the "status" field is among the changed fields
-                if (array_key_exists('status', $changedFields)) {
-
-                    $statuses = Status::pluck('name', 'id')->toArray();
-
-                    // Set the status label values
-                    $oldStatusLabel = $statuses[$oldStatus] ?? $oldStatus;
-                    $newStatusLabel = $statuses[$newStatus] ?? $newStatus;
-                    $statusDescription ="Status changed from '$oldStatusLabel' to  '$newStatusLabel'";
-
-                }
-
-                $userIds = [auth()->id(), $asset->user_id];
-                $users = User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
-
-                $userOrlocation = '';
-                if($newStatus == 2){
-                    $userName = $users[$asset->user_id];
-                    $userOrlocation = ", assigned user : $userName";
-                }else{
-                    $location = Location::findOrFail($asset->location_id);
-                    $userOrlocation = ", location : $location->name";
-                }
-
-                $updatedBy = '';
-                if(auth()->id()){
-                    $updateUserName = $users[auth()->id()];
-                    $updatedBy = ", Updated by : $updateUserName";
-                }
-
-                $otherDescriptions = '';
-                //Check for change in asset type
-                if (array_key_exists('type_id', $changedFields)) {
-                    $oldType = $asset->getOriginal('type_id');
-                    $newType = $asset->type_id;
-
-                    $assetTypeIds = [$oldType, $newType];
-                    $assetTypes = Type::whereIn('id', $assetTypeIds)->pluck('type', 'id')->toArray();
-
-                    $otherDescriptions = ", Asset type changed from '$assetTypes[$oldType]' to '$assetTypes[$newType]'";
-                }
-
-                //Check for change in hardware standard
-                if (array_key_exists('hardware_standard_id', $changedFields)) {
-                    $oldHardwareStandard = $asset->getOriginal('hardware_standard_id');
-                    $newHardwareStandard = $asset->hardware_standard_id;
-
-                    $hardwareStandardIds = [$oldHardwareStandard, $newHardwareStandard];
-                    $hardwareStandards = HardwareStandard::whereIn('id', $hardwareStandardIds)->pluck('description', 'id')->toArray();
-
-                    $otherDescriptions = $otherDescriptions.", Hardware standard changed from '$hardwareStandards[$oldHardwareStandard]' to '$hardwareStandards[$newHardwareStandard]'";
-                }
-
-                //Check for change in technical specification
-                if (array_key_exists('technical_specification_id', $changedFields)) {
-                    $oldTechnicalSpec = $asset->getOriginal('technical_specification_id');
-                    $newTechnicalSpec = $asset->technical_specification_id;
-
-                    $technicalSpecIds = [$oldTechnicalSpec, $newTechnicalSpec];
-                    $technicalSpecs = TechnicalSpecifications::whereIn('id', $technicalSpecIds)->pluck('description', 'id')->toArray();
-
-                    $otherDescriptions = $otherDescriptions.", Technical Specification changed from '$technicalSpecs[$oldTechnicalSpec]' to '$technicalSpecs[$newTechnicalSpec]'";
-                }
-
-                //Check for change in asset tag
-                if (array_key_exists('asset_tag', $changedFields)) {
-                    $oldAssetTag = $asset->getOriginal('asset_tag');
-                    $newAssetTag = $asset->asset_tag;
-
-                    $otherDescriptions = $otherDescriptions.", Asset tag changed from '$oldAssetTag' to '$newAssetTag'";
-                }
-
-                //Check for change in serial number
-                if (array_key_exists('serial_no', $changedFields)) {
-                    $oldAssetSlno = $asset->getOriginal('serial_no');
-                    $newAssetSlno = $asset->serial_no;
-
-                    $otherDescriptions = $otherDescriptions.", Asset serail number changed from '$oldAssetSlno' to '$newAssetSlno'";
-                }
-
-                //Check for change in purchase order
-                if (array_key_exists('purchase_order', $changedFields)) {
-                    $oldPurchaseOrder = $asset->getOriginal('purchase_order');
-                    $newPurchaseOrder = $asset->purchase_order;
-
-                    $otherDescriptions = $otherDescriptions.", Asset purchase order number changed from '$oldPurchaseOrder' to '$newPurchaseOrder'";
-                }
-
-                $description = "$statusDescription $otherDescriptions $userOrlocation $updatedBy";
-
-                $description = ltrim($description,', ');
-
-            $assetHistoryData = [
-                'asset_id' => $asset->id,
-                'action' => 'updated',
-                'description' => $description,
-                'user_id' => auth()->id(),
-                'changed_fields' => json_encode($changedFields),
-            ];
-
-            if (array_key_exists('status', $changedFields)) {
-                $assetHistoryData['status_from'] = $oldStatus;
-                $assetHistoryData['status_to'] = $asset->status;
-            }
-
-            AssetHistory::create($assetHistoryData);
-        }
     }
 
     /**

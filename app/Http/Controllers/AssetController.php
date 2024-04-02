@@ -8,12 +8,12 @@ use App\Models\Asset;
 use App\Models\HardwareStandard;
 use App\Models\Location;
 use App\Models\Status;
+use App\Models\TechnicalSpecifications;
 use App\Models\Type;
 use App\Models\User;
 use App\Services\AssetFilterService;
 use App\Services\AssetHistoryService;
 use Illuminate\Http\Request;
-use App\Services\TechnicalSpecsService;
 use App\Services\AssetService;
 use App\Services\StatusService;
 
@@ -21,15 +21,13 @@ class AssetController extends Controller
 {
 
     protected $assetFilterService;
-    protected $technicalSpecsService;
     protected $assetService;
     protected $statusService;
     protected $assetHistoryService;
 
-    public function __construct(AssetFilterService $assetFilterService, TechnicalSpecsService $technicalSpecsService, AssetService $assetService, StatusService $statusService, AssetHistoryService $assetHistoryService)
+    public function __construct(AssetFilterService $assetFilterService, AssetService $assetService, StatusService $statusService, AssetHistoryService $assetHistoryService)
     {
         $this->assetFilterService = $assetFilterService;
-        $this->technicalSpecsService = $technicalSpecsService;
         $this->assetService = $assetService;
         $this->statusService = $statusService;
         $this->assetHistoryService = $assetHistoryService;
@@ -43,7 +41,7 @@ class AssetController extends Controller
         $assets = $this->assetService->getAssetsList();
         $assetTypes = Type::select('id', 'type')->get();
         $hardwareStandards = HardwareStandard::select('id', 'description')->get();
-        $technicalSpecs = $this->technicalSpecsService->showTechnicalSpecs();
+        $technicalSpecs = TechnicalSpecifications::select('id', 'description')->get();
 
         return view('home',compact('assets','assetTypes','hardwareStandards','technicalSpecs'));
     }
@@ -96,8 +94,8 @@ class AssetController extends Controller
         $asset = $this->assetService->getAsset($id);
         $assetTypes = Type::select('id', 'type')->get();
         $hardwareStandards = HardwareStandard::select('id', 'description')->get();
-        $technicalSpecs = $this->technicalSpecsService->showTechnicalSpecs();
-        $assetLocations = $this->assetFilterService->getDynamicLocation($asset->status);
+        $technicalSpecs = TechnicalSpecifications::select('id', 'description')->get();
+        $assetLocations = $this->assetFilterService->getDynamicLocation($asset->status_text);
         $users = User::select('id', 'name')->get();
         $statuses = Status::select('id', 'name')->get();
 

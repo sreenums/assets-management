@@ -46,6 +46,11 @@ class Asset extends Model
         return $this->belongsTo(Location::class);
     }
 
+    public function status()
+    {
+        return $this->belongsTo(Status::class);
+    }
+
     public function assetHistories()
     {
         return $this->hasMany(AssetHistory::class);

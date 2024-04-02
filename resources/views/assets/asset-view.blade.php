@@ -11,7 +11,7 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
                 <h3 class="card-title mb-4">Asset Informations</h3>
-                <a href="#" data-asset-id="{{ $asset->id }}" id="history" name="history" class="btn btn-light">Asset Status History</a>
+                <!--<a href="#" data-asset-id="{{ $asset->id }}" id="history" name="history" class="btn btn-light">Asset Status History</a>-->
             </div>
             <div class="mb-3 row">
                 <div class="col-sm-3">Asset Type</div>
@@ -131,7 +131,7 @@
 
 
 
-        <div class="modal fade" id="assetHistoryModal" tabindex="-1" aria-labelledby="assetHistoryModalLabel" aria-hidden="true">
+        <!-- <div class="modal fade" id="assetHistoryModal" tabindex="-1" aria-labelledby="assetHistoryModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg">
               <div class="modal-content">
                   <div class="modal-header">
@@ -139,9 +139,7 @@
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body" id="assetHistoryContainer" style="word-wrap: break-word">
-                        <!--<h1 class="mt-5 mb-3">Asset History</h1>-->
 
-                        <!-- Asset history cards -->
                         <div class="card">
                             <div class="card-header">
                                 Asset tag: {{ $asset->asset_tag }}
@@ -149,7 +147,6 @@
                             <div class="card-body" >
                                 <h5 class="card-title">Status History Details</h5>
                                 <p class="card-text" id="assetHistoryDetails">Details about the asset history...</p>
-                                <!-- Add more details as needed -->
                             </div>
                         </div>
                   </div>
@@ -158,7 +155,7 @@
                   </div>
               </div>
           </div>
-        </div>
+        </div> -->
 
 <script>
   $(document).ready(function() {
@@ -237,15 +234,16 @@
 
       });
 
-    $('body').on('click', '#history', function (e) {
+    /* $('body').on('click', '#history', function (e) {
         e.preventDefault();
         $('#assetHistoryModal').modal('show');
         var assetId = $(this).data('asset-id');
 
         // History view with assetId
         loadHistory(assetId);
-    });
+    }); */
 
+    /*
     function loadHistory(assetId) {
         $.ajax({
             url: '/assets/' + assetId + '/history',
@@ -282,7 +280,7 @@
                 console.error(xhr.responseText);
             }
         });
-    }
+    } */
 
 });
 

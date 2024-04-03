@@ -16,7 +16,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class CreateAssetHistory implements ShouldQueue
+class CreateAssetHistoryJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -88,19 +88,15 @@ class CreateAssetHistory implements ShouldQueue
                         $userIds = [$this->authUserId, $this->asset->user_id];
                         $users = User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         
+                        //For change in user or location
                         $userOrlocation = '';
-                        if($newStatus == 2){
+                        $assigned = config('custom.status.assigned');
+                        if($newStatus == $assigned){
                             $userName = $users[$this->asset->user_id];
                             $userOrlocation = ", assigned user : $userName";
                         }else{
                             $location = Location::findOrFail($this->asset->location_id);
                             $userOrlocation = ", location : $location->name";
-                        }
-        
-                        $updatedBy = '';
-                        if($this->authUserId){
-                            $updateUserName = $users[$this->authUserId];
-                            $updatedBy = ", Updated by : $updateUserName";
                         }
         
                         $otherDescriptions = '';
@@ -159,6 +155,12 @@ class CreateAssetHistory implements ShouldQueue
                             $newPurchaseOrder = $this->asset->purchase_order;
         
                             $otherDescriptions = $otherDescriptions.", Asset purchase order number changed from '$oldPurchaseOrder' to '$newPurchaseOrder'";
+                        }
+       
+                        $updatedBy = '';
+                        if($this->authUserId){
+                            $updateUserName = $users[$this->authUserId];
+                            $updatedBy = ", Updated by : $updateUserName";
                         }
         
                         $description = "$statusDescription $otherDescriptions $userOrlocation $updatedBy";

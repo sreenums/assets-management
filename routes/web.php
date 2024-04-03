@@ -4,6 +4,7 @@ use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetManagementController;
 use App\Http\Controllers\AssetParameterController;
 use App\Http\Controllers\AssetTypeController;
+use App\Http\Controllers\CSVExportController;
 use App\Http\Controllers\HardwareStandardController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LocationController;
@@ -106,6 +107,9 @@ Route::middleware([Authenticate::class])->group(function () {
 
     // Route for Status History
     Route::get('/assets/{asset}/history', [HistoryController::class, 'showHistory'])->name('asset.history');
+
+    //Route for CSV Export
+    Route::get('/export-csv', [CSVExportController::class, 'exportCsv'])->name('export.csv');
 
 });
 

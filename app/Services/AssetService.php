@@ -121,8 +121,10 @@ class AssetService
     {
         return $assets->map(function($asset) {
 
+            $assigned = config('custom.status.assigned');
+            
             $location = '';
-            if ($asset->status_text == 'Assigned') {
+            if ($asset->status == $assigned) {
                 $location = $asset->user->name;
             } else {
                 $location = $asset->location->name;

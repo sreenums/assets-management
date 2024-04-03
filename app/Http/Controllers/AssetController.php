@@ -95,7 +95,7 @@ class AssetController extends Controller
         $assetTypes = Type::select('id', 'type')->get();
         $hardwareStandards = HardwareStandard::select('id', 'description')->get();
         $technicalSpecs = TechnicalSpecifications::select('id', 'description')->get();
-        $assetLocations = $this->assetFilterService->getDynamicLocation($asset->status_text);
+        $assetLocations = $this->assetFilterService->getDynamicLocation($asset->status);
         $users = User::select('id', 'name')->get();
         $statuses = Status::select('id', 'name')->get();
 

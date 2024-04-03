@@ -2,14 +2,9 @@
 
 namespace App\Observers;
 
-use App\Jobs\CreateAssetHistory;
+use App\Jobs\CreateAssetHistoryJob;
 use App\Models\Asset;
-use App\Models\AssetHistory;
-use App\Models\HardwareStandard;
-use App\Models\Location;
-use App\Models\Status;
-use App\Models\TechnicalSpecifications;
-use App\Models\Type;
+
 use App\Models\User;
 
 class AssetObserver
@@ -27,7 +22,7 @@ class AssetObserver
         $description = "Asset created by $user->name";
     
         // Dispatch the job to create asset history
-        CreateAssetHistory::dispatch($asset, $authUserId, 'created', $description, NULL, NULL);
+        CreateAssetHistoryJob::dispatch($asset, $authUserId, 'created', $description, NULL, NULL);
     }
 
     /**
@@ -41,8 +36,9 @@ class AssetObserver
         $authUserId = auth()->id();
         $changedFieldsUpdate = $asset->getChanges();
         $updateOriginalFields = $asset->getOriginal();
-        CreateAssetHistory::dispatch($asset, $authUserId, 'updated', NULL, $changedFieldsUpdate, $updateOriginalFields);
 
+        // Dispatch the job to update asset history
+        CreateAssetHistoryJob::dispatch($asset, $authUserId, 'updated', NULL, $changedFieldsUpdate, $updateOriginalFields);
     }
 
     /**

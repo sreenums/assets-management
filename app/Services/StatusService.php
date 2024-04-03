@@ -29,17 +29,19 @@ class StatusService
      */
     public function updateStatus($request, $id)
     {
+        $assigned = config('custom.status.assigned');
+        
         // Initialize user_id and location_id variables
         $userId = NULL;
-        $locationId = $request->assetLocationEdit;
+        $locationId = $request->assetLocationOrUser;
         
-        if ($request->assetStatusChange == 2) {
-            $userId = $request->assetLocationEdit;
+        if ($request->assetStatus == $assigned) {
+            $userId = $request->assetLocationOrUser;
             $locationId = NULL;
         }
 
         $updateStatusData = [
-            'status' => $request->assetStatusChange,
+            'status' => $request->assetStatus,
             'location_id' => $locationId,
             'user_id' => $userId,
         ];

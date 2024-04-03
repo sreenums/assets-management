@@ -8,19 +8,54 @@
 
   <main role="main" class="container mt-5">
 
-    <div class="starter-template mt-6 mb-4">
+    <div class="starter-template mt-6 mb-4 d-flex justify-content-between align-items-center">
         <h1>Dashboard Home</h1>
-        <!--
-      <h1>Bootstrap starter template</h1>
-      <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
-        -->
+        <div class="col-md-3">
+            <div class="form-group ms-auto">
+                <a href="{{ route('export.csv', [
+                        'days' => 1,
+                        'months' => 2,
+                        'years' => 2,
+                        'assetsType' => 4,
+                        'hardwareStandard' => 4,
+                        'technicalSpec' => 4,
+                        'assetStatus' => 2,
+                        'assetSearch' => '1',
+                    ]) }}" class="btn btn-light">
+                    <i class="bi bi-file-earmark-arrow-down"></i> Export CSV
+                </a>
+            </div>
+        </div>
     </div>
-    <div class="text-right mt-3">
-      <a href="{{ route('assets.create'); }}" class="btn btn-outline-success">Add Asset</a>
+
+    <div class="container mt-5 d-flex justify-content-between align-items-center">
+        <div class="text-right ">
+            <a href="{{ route('assets.create'); }}" class="btn btn-outline-success">Add Asset</a>
+        </div>
+
+        <div class="row align-items-center">List for
+            <div class="col-md-3">
+                <select class="form-control" id="days">
+                    <option value="">Day</option>
+                    <!-- Options for days -->
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select class="form-control" id="months">
+                    <option value="">Month</option>
+                    <!-- Options for months -->
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-control" id="years">
+                    <option value="">Year</option>
+                    <!-- Options for years -->
+                </select>
+            </div>
+        </div>
     </div>
     <div class="table-responsive ml-2 mr-2">
             <div class="row mb-2 mt-4">
-                
                 <div class="col-md-4">
                   <!-- Asset Type Filter -->
                   <div class="form-group">
@@ -77,7 +112,6 @@
                     </div>
                 </div>
             </div>
-
 <br>
         <table id="assets-table" class="table table-striped table-hover" >
             <thead class="table-success">
@@ -170,7 +204,12 @@
             searching: false,
             processing: true,
             serverSide: true,
-            ajax: "{{ route('list.asset') }}",
+            ajax: {
+                url: "{{ route('list.asset') }}",
+                data: function (d) {
+                    d.days = $('#days').val(); // Pass the default age filtering value
+                }
+            },
             columns: [
                 { data: 'id', name: 'id' },
                 { data: 'type', name: 'type' },
@@ -213,6 +252,9 @@
             var technicalSpec = $('#technicalSpec').val();
             var statusId = $('#assetStatus').val();
             var assetSearch = $('#assetSearch').val();
+            var daySearch = $('#days').val();
+            var months = $('#months').val();
+            var years = $('#years').val();
 
             var url = "{{ route('list.asset') }}?";
 
@@ -231,6 +273,15 @@
             if (assetSearch) {
                 url += "assetSearch=" + assetSearch + "&";
             }
+            if (daySearch) {
+                url += "days=" + daySearch + "&";
+            }
+            if (months) {
+                url += "months=" + months + "&";
+            }
+            if (years) {
+                url += "years=" + years + "&";
+            }
 
             // Remove trailing '&' if exists
             url = url.replace(/&$/, "");
@@ -238,8 +289,19 @@
             $('#assets-table').DataTable().ajax.url(url).load();
         }
 
-        $('#assetSearch, #assetStatus, #assetsType, #hardwareStandard, #technicalSpec').on('keyup change', function() {
+        $('#assetSearch, #assetStatus, #assetsType, #hardwareStandard, #technicalSpec, #days, #months, #years').on('keyup change', function() {
             
+            var daysValue = $('#days').val(); // Get the value of days dropdown
+            var monthsValue = $('#months').val(); // Get the value of months dropdown
+            var yearsValue = $('#years').val(); // Get the value of years dropdown
+            // Check if a value is present in days, months, and years
+            var isDateSpecified = daysValue || monthsValue || yearsValue;
+
+            if (!isDateSpecified) {
+                alert("Please select a date filter! Default filter applied for 7 days.");
+                $('#days').val(7);
+            }
+
             if ($(this).is('#assetsType')) {
                 $("#hardwareStandard").html("<option value='all'>--Select--</option>");
                 $("#technicalSpec").html("<option value='all'>--Select--</option>");
@@ -281,6 +343,38 @@
         });
 
     });
+
+
+    // Populate options for days
+    var daySelect = document.getElementById("days");
+    for (var i = 1; i <= 31; i++) {
+        var option = document.createElement("option");
+        option.text = i+" day";
+        option.value = i;
+            if (i == 7) {
+                option.selected = true; // Set option with value 7 as selected
+            }
+        daySelect.add(option);
+    }
+
+    // Populate options for months
+    var monthSelect = document.getElementById("months");
+    for (var i = 1; i <= 12; i++) {
+        var option = document.createElement("option");
+        option.text = i + " month";
+        option.value = i;
+        monthSelect.add(option);
+    }
+
+    // Populate options for years
+    var yearSelect = document.getElementById("years");
+    for (var i = 1; i <= 5; i++) {
+        var option = document.createElement("option");
+        option.text = i+" year";
+        option.value = i;
+        yearSelect.add(option);
+    }
+
 </script>
 
 

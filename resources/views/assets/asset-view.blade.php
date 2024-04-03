@@ -80,7 +80,7 @@
 
 
 
-        <!--Edit Type popup -->
+        <!--Change status popup -->
         <div class="modal fade" id="changeStatusModal" tabindex="-1" aria-labelledby="changeStatusModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg">
               <div class="modal-content">
@@ -91,8 +91,8 @@
                   <div class="modal-body" id="commentsContainer">
                     <form id="changeStatusForm" method="PUT" action="{{ route('asset.update-status', ['id' => $asset->id]) }}">
                       @csrf
-                        <label for="assetStatusChange">Asset Status:</label>
-                        <select id="assetStatusChange" name="assetStatusChange" class="form-control mb-2" required>
+                        <label for="assetStatus">Asset Status:</label>
+                        <select id="assetStatus" name="assetStatus" class="form-control mb-2" required>
 
                             <option value="">--Select--</option>
                             @foreach($statuses as $status)
@@ -100,8 +100,8 @@
                             @endforeach
                         </select>
 
-                        <label for="assetLocationEdit" class="form-label">User/ Location</label>
-                        <select id="assetLocationEdit" name="assetLocationEdit" class="form-select" required>
+                        <label for="assetLocationOrUser" class="form-label">User/ Location</label>
+                        <select id="assetLocationOrUser" name="assetLocationOrUser" class="form-select" required>
                             
                             @if(isset($asset->location_id))
                             <option selected value="{{ $asset->location_id }}">{{ $asset->location->name }}</option>
@@ -114,7 +114,7 @@
                             @endif
 
                         </select>
-                        @if ($errors->has('assetLocationEdit'))
+                        @if ($errors->has('assetLocationOrUser'))
                             <div class="validation-error">Please select asset location</div>
                         @endif
 
@@ -190,11 +190,11 @@
     });
 
     
-    $(document).on('change','#assetStatusChange', function() {
-      let assetStatusChange = $(this).val();
-      if (assetStatusChange == '2') {           //Assigned
+    $(document).on('change','#assetStatus', function() {
+      let assetStatus = $(this).val();
+      if (assetStatus == '2') {           //Assigned
 
-            //$("#assetLocationEdit").html("<option value=''>User Selected</option>");
+            //$("#assetLocationOrUser").html("<option value=''>User Selected</option>");
             $.ajax({
                 method: 'post',
                 url: "{{ route('get.users') }}",
@@ -208,7 +208,7 @@
                                 "'>" + value.name + "</option>";
                         });
                         
-                        $("#assetLocationEdit").html(all_options);
+                        $("#assetLocationOrUser").html(all_options);
                     }
                 }
             });
@@ -226,7 +226,7 @@
                                 "'>" + value.name + "</option>";
                         });
 
-                        $("#assetLocationEdit").html(all_options);
+                        $("#assetLocationOrUser").html(all_options);
                     }
                 }
           });

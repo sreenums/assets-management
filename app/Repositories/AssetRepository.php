@@ -57,17 +57,27 @@ class AssetRepository
             $assets->where('technical_specification_id', $request->technicalSpec);
         }
 
-        // //Filtering based on status
-        if ($request->has('status')) {
-            if(request('status') == 1){ 
-                $assets->where('status', 1); 
-            }
-            elseif(request('status') == 2){ 
-                $assets->where('status', 2); 
-            }
-            elseif(request('status') == 3){ 
-                $assets->where('status', 3); 
-            }
+        //Filtering based on status
+        if ($request->has('status') && $request->status != 'all') {
+            $assets->where('status', $request->status);
+        }
+
+        $ageFilter = now();
+        //Age filtering based on days
+        if($request->has('days') && $request->days != '') {
+            $ageFilter = $ageFilter->subDays($request->days);
+        }
+        //Age filtering based on months
+        if($request->has('months') && $request->months != '') {
+            $ageFilter = $ageFilter->subMonths($request->months);
+        }
+        //Age filtering based on years
+        if($request->has('years') && $request->years != '') {
+            $ageFilter = $ageFilter->subYears($request->years);
+        }
+        
+        if($request->has('days') || $request->has('months') || $request->has('years')) {
+            $assets->where('created_at', '>=', $ageFilter);
         }
 
         // Sorting based on ID column
@@ -80,6 +90,11 @@ class AssetRepository
                 $assets->orderBy('id', $orderDirection);
             }
         }
+
+        // Log the generated SQL query
+        $sql = $assets->toSql();
+        $bindings = $assets->getBindings();
+        Log::info('FilterAsset - SQL:', ['sql' => $sql, 'bindings' => $bindings]);
 
         return $assets;
     }

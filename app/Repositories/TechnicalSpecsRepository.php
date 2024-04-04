@@ -65,4 +65,9 @@ class TechnicalSpecsRepository
         return $this->model->where('hardware_standard_id', $request->hardwareStandard)->get();
      }
 
+     public function getSelctedTechnicalSpecs($technicalSpecIds)
+     {
+        return $this->model->whereIn('id', $technicalSpecIds)->pluck('description', 'id')->toArray();
+     }
+
 }

@@ -3,12 +3,12 @@
 namespace App\Observers;
 
 use App\Jobs\CreateAssetHistoryJob;
+use App\Services\AssetHistoryService;
 use App\Models\Asset;
-
-use App\Models\User;
 
 class AssetObserver
 {
+    
     /**
      * Handle the Asset "created" event.
      *
@@ -18,11 +18,9 @@ class AssetObserver
     public function created(Asset $asset)
     {
         $authUserId = auth()->id();
-        $user = User::select('id', 'name')->findOrFail($authUserId);
-        $description = "Asset created by $user->name";
     
         // Dispatch the job to create asset history
-        CreateAssetHistoryJob::dispatch($asset, $authUserId, 'created', $description, NULL, NULL);
+        CreateAssetHistoryJob::dispatch($asset, $authUserId, 'created', NULL, NULL, NULL);
     }
 
     /**
@@ -36,9 +34,10 @@ class AssetObserver
         $authUserId = auth()->id();
         $changedFieldsUpdate = $asset->getChanges();
         $updateOriginalFields = $asset->getOriginal();
+        $assetHistoryService = app(AssetHistoryService::class);
 
         // Dispatch the job to update asset history
-        CreateAssetHistoryJob::dispatch($asset, $authUserId, 'updated', NULL, $changedFieldsUpdate, $updateOriginalFields);
+        CreateAssetHistoryJob::dispatch($asset, $authUserId, 'updated', $changedFieldsUpdate, $updateOriginalFields, $assetHistoryService);
     }
 
     /**

@@ -12,138 +12,130 @@
         <h1>Dashboard Home</h1>
         <div class="col-md-3">
             <div class="form-group ms-auto">
-                <a href="{{ route('export.csv', [
-                        'days' => 1,
-                        'months' => 2,
-                        'years' => 2,
-                        'assetsType' => 4,
-                        'hardwareStandard' => 4,
-                        'technicalSpec' => 4,
-                        'assetStatus' => 2,
-                        'assetSearch' => '1',
-                    ]) }}" class="btn btn-light">
-                    <i class="bi bi-file-earmark-arrow-down"></i> Export CSV
-                </a>
+            <button id="export-button" class="btn btn-light"
+                    data-export-route="{{ route('export.csv') }}" onclick="submitForm()">
+                <i class="bi bi-file-earmark-arrow-down"></i> Export CSV
+            </button>
             </div>
         </div>
     </div>
+    <form method="GET" name="searchForm" id="searchForm" action="{{ route('export.csv') }}" >
+        <div class="container mt-5 d-flex justify-content-between align-items-center">
+            <div class="text-right ">
+                <a href="{{ route('assets.create'); }}" class="btn btn-outline-success">Add Asset</a>
+            </div>
 
-    <div class="container mt-5 d-flex justify-content-between align-items-center">
-        <div class="text-right ">
-            <a href="{{ route('assets.create'); }}" class="btn btn-outline-success">Add Asset</a>
+            <div class="row align-items-center">List for
+                <div class="col-md-3">
+                    <select class="form-control" id="days" name="days">
+                        <option value="">Day</option>
+                        <!-- Options for days -->
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control" id="months" name="months">
+                        <option value="">Month</option>
+                        <!-- Options for months -->
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" id="years" name="years">
+                        <option value="">Year</option>
+                        <!-- Options for years -->
+                    </select>
+                </div>
+            </div>
         </div>
-
-        <div class="row align-items-center">List for
-            <div class="col-md-3">
-                <select class="form-control" id="days">
-                    <option value="">Day</option>
-                    <!-- Options for days -->
-                </select>
+        
+        <div class="row mb-2 mt-4">
+            <div class="col-md-4">
+                <!-- Asset Type Filter -->
+                <div class="form-group">
+                    <label for="assetType">Type:</label>
+                    <select id="assetType" name="assetType" class="form-control">
+                        <option value="all">All Asset Types</option>
+                        @foreach($assetTypes as $assetType)
+                            <option value="{{ $assetType->id }}" >{{ $assetType->type }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
             <div class="col-md-4">
-                <select class="form-control" id="months">
-                    <option value="">Month</option>
-                    <!-- Options for months -->
-                </select>
+                <!-- Hardware Standard Filter -->
+                <div class="form-group">
+                    <label for="hardwareStandard">Hardware Standard:</label>
+                    <select id="hardwareStandard" name="hardwareStandard" class="form-control">
+                        <option value="all">--Select--</option>
+                        @foreach($hardwareStandards as $hardwareStandard)
+                            <option value="{{ $hardwareStandard->id }}" >{{ $hardwareStandard->description }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
-            <div class="col-md-3">
-                <select class="form-control" id="years">
-                    <option value="">Year</option>
-                    <!-- Options for years -->
-                </select>
+            <div class="col-md-4">
+                <!-- Technical Specification Filter -->
+                <div class="form-group">
+                    <label for="technicalSpec">Technical Specification:</label>
+                    <select id="technicalSpec" name="technicalSpec" class="form-control">
+                        <option value="all">--Select--</option>
+                        @foreach($technicalSpecs as $technicalSpec)
+                            <option value="{{ $technicalSpec->id }}" >{{ $technicalSpec->description }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <!-- Status Filter -->
+                <div class="form-group">
+                    <label for="status">Status:</label>
+                    <select id="status" name="status" class="form-control">
+                        <option value="all">All Statuses</option>
+                        <option value="1" >Brand New</option>
+                        <option value="2" >Assigned</option>
+                        <option value="3" >Damaged</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <!-- Search Input -->
+                <div class="form-group">
+                    <label for="assetSearch">Asset tag/ Asset Slno:</label>
+                    <input type="text" id="assetSearch" name="assetSearch" class="form-control" onkeypress="return /[a-zA-Z0-9]/.test(event.key)" placeholder="Asset tag or asset slno" value="{{ request('commentsCount') }}">
+                </div>
             </div>
         </div>
-    </div>
-    <div class="table-responsive ml-2 mr-2">
-            <div class="row mb-2 mt-4">
-                <div class="col-md-4">
-                  <!-- Asset Type Filter -->
-                  <div class="form-group">
-                      <label for="assetsType">Type:</label>
-                      <select id="assetsType" name="assetsType" class="form-control">
-                          <option value="all">All Asset Types</option>
-                          @foreach($assetTypes as $assetType)
-                              <option value="{{ $assetType->id }}" >{{ $assetType->type }}</option>
-                          @endforeach
-                      </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <!-- Hardware Standard Filter -->
-                  <div class="form-group">
-                      <label for="hardwareStandard">Hardware Standard:</label>
-                      <select id="hardwareStandard" name="hardwareStandard" class="form-control">
-                          <option value="all">--Select--</option>
-                          @foreach($hardwareStandards as $hardwareStandard)
-                              <option value="{{ $hardwareStandard->id }}" >{{ $hardwareStandard->description }}</option>
-                          @endforeach
-                      </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <!-- Hardware Standard Filter -->
-                  <div class="form-group">
-                      <label for="technicalSpec">Technical Specification:</label>
-                      <select id="technicalSpec" name="technicalSpec" class="form-control">
-                          <option value="all">--Select--</option>
-                          @foreach($technicalSpecs as $technicalSpec)
-                              <option value="{{ $technicalSpec->id }}" >{{ $technicalSpec->description }}</option>
-                          @endforeach
-                      </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                    <!-- Status Filter -->
-                    <div class="form-group">
-                        <label for="assetStatus">Status:</label>
-                        <select id="assetStatus" name="assetStatus" class="form-control">
-                            <option value="all">All Statuses</option>
-                            <option value="1" >Brand New</option>
-                            <option value="2" >Assigned</option>
-                            <option value="3" >Damaged</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <!-- Search Input -->
-                    <div class="form-group">
-                        <label for="assetSearch">Asset tag/ Asset Slno:</label>
-                        <input type="text" id="assetSearch" name="assetSearch" class="form-control" onkeypress="return /[a-zA-Z0-9]/.test(event.key)" placeholder="Asset tag or asset slno" value="{{ request('commentsCount') }}">
-                    </div>
-                </div>
-            </div>
-<br>
-        <table id="assets-table" class="table table-striped table-hover" >
-            <thead class="table-success">
-                
-                    <tr>
-                        <th>Sl no</th>
-                        <th><a href="{{ route('assets-type.index') }}">Type</a></th>
-                        <th><a href="{{ route('hardware-standard.index') }}">Hardware Standard</a></th>
-                        <th><a href="{{ route('technical-specs.index') }}">Technical Specification</a></th>
-                        <th><a href="{{ route('users.index'); }}">User</a> / <a href="{{ route('locations.index'); }}">Location</a></th>
-                        <th>Status</th>
-                        <th>Asset Tag</th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-            </thead>
-        </table>
-        <br>
-        <br>
-        <br>
-    </div>
-
+    </form>
+    <br>
+    <table id="assets-table" class="table table-striped table-hover" >
+        <thead class="table-success">
+            
+                <tr>
+                    <th>Sl no</th>
+                    <th><a href="{{ route('assets-type.index') }}">Type</a></th>
+                    <th><a href="{{ route('hardware-standard.index') }}">Hardware Standard</a></th>
+                    <th><a href="{{ route('technical-specs.index') }}">Technical Specification</a></th>
+                    <th><a href="{{ route('users.index'); }}">User</a> / <a href="{{ route('locations.index'); }}">Location</a></th>
+                    <th>Status</th>
+                    <th>Asset Tag</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+        </thead>
+    </table>
+    <br>
+    <br>
+    <br>
+    
   </main>
 
 <script type="text/javascript">
     
     $(document).ready(function() {
 
-        $(document).on('change','#assetsType', function() {
+        $(document).on('change','#assetType', function() {
         //$("#hardwareStandard").html("<option value='all'>--Select--</option>");
-        //$("#technicalSpec").html("<option value=''>--Select--</option>");
+        //$("#technicalSpec").html("<option value='all'>--Select--</option>");
           let assetType = $(this).val();
           $.ajax({
               method: 'post',
@@ -153,7 +145,7 @@
               },
               success: function(res) {
                   if (res.status == 'success') {
-                      let all_options = "<option value=''>--Select--</option>";
+                      let all_options = "<option value='all'>--Select--</option>";
                       let subHardwareStandards = res.subHardwareStandards;
                       $.each(subHardwareStandards, function(index, value) {
                           all_options += "<option value='" + value.id +
@@ -167,7 +159,7 @@
         });
 
       $(document).on('change','#hardwareStandard', function() {
-          $("#technicalSpec").html("<option value=''>--Select--</option>");
+          //$("#technicalSpec").html("<option value='all'>--Select--</option>");
           let hardwareStandard = $(this).val();
           
           $.ajax({
@@ -178,7 +170,7 @@
               },
               success: function(res) {
                   if (res.status == 'success') {
-                      let all_options = "<option value=''>--Select--</option>";
+                      let all_options = "<option value='all'>--Select--</option>";
                       let subTechnicalSpecs = res.subTechnicalSpecs;
                       $.each(subTechnicalSpecs, function(index, value) {
                           all_options += "<option value='" + value.id +
@@ -247,10 +239,10 @@
 
 
         function handleFilterChange() {
-            var assetTypeId = $('#assetsType').val();
+            var assetTypeId = $('#assetType').val();
             var hardwareStandard = $('#hardwareStandard').val();
             var technicalSpec = $('#technicalSpec').val();
-            var statusId = $('#assetStatus').val();
+            var statusId = $('#status').val();
             var assetSearch = $('#assetSearch').val();
             var daySearch = $('#days').val();
             var months = $('#months').val();
@@ -289,7 +281,7 @@
             $('#assets-table').DataTable().ajax.url(url).load();
         }
 
-        $('#assetSearch, #assetStatus, #assetsType, #hardwareStandard, #technicalSpec, #days, #months, #years').on('keyup change', function() {
+        $('#assetSearch, #status, #assetType, #hardwareStandard, #technicalSpec, #days, #months, #years').on('keyup change', function() {
             
             var daysValue = $('#days').val(); // Get the value of days dropdown
             var monthsValue = $('#months').val(); // Get the value of months dropdown
@@ -302,7 +294,7 @@
                 $('#days').val(7);
             }
 
-            if ($(this).is('#assetsType')) {
+            if ($(this).is('#assetType')) {
                 $("#hardwareStandard").html("<option value='all'>--Select--</option>");
                 $("#technicalSpec").html("<option value='all'>--Select--</option>");
             }
@@ -344,12 +336,11 @@
 
     });
 
-
     // Populate options for days
     var daySelect = document.getElementById("days");
     for (var i = 1; i <= 31; i++) {
         var option = document.createElement("option");
-        option.text = i+" day";
+        option.text = i+" days";
         option.value = i;
             if (i == 7) {
                 option.selected = true; // Set option with value 7 as selected
@@ -361,7 +352,7 @@
     var monthSelect = document.getElementById("months");
     for (var i = 1; i <= 12; i++) {
         var option = document.createElement("option");
-        option.text = i + " month";
+        option.text = i + " months";
         option.value = i;
         monthSelect.add(option);
     }
@@ -370,9 +361,14 @@
     var yearSelect = document.getElementById("years");
     for (var i = 1; i <= 5; i++) {
         var option = document.createElement("option");
-        option.text = i+" year";
+        option.text = i+" years ";
         option.value = i;
         yearSelect.add(option);
+    }
+
+    //Form submit for csv export
+    function submitForm() {
+        document.getElementById('searchForm').submit();
     }
 
 </script>

@@ -39,10 +39,14 @@ class HardwareStandardRepository
         return $hardwareStandard->delete();
      }
 
-
      public function getHardwareStandardWithType($request)
      {
         return $this->model->where('type_id', $request->assetType)->get();
+     }
+
+     public function getSelectedHardwareStandards($hardwareStandardIds)
+     {
+        return $this->model->whereIn('id', $hardwareStandardIds)->pluck('description', 'id')->toArray();
      }
 
 }

@@ -38,4 +38,9 @@ class UserRepository
        return $this->model->get();
     }
 
+    public function getSelectedUsers($authUserId, $assetUserId)
+    {
+       return $this->model->whereIn('id', [$authUserId, $assetUserId])->pluck('name', 'id')->toArray();
+    }
+
 }

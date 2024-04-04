@@ -37,5 +37,9 @@ class AssetTypeRepository
         return $type->delete();
     }
 
-
+    public function getSelectedAssetTypes($assetTypeIds)
+    {
+        return $this->model->whereIn('id', $assetTypeIds)->pluck('type', 'id')->toArray();
+    }
+    
 }

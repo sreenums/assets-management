@@ -18,9 +18,10 @@ class AssetObserver
     public function created(Asset $asset)
     {
         $authUserId = auth()->id();
+        $assetHistoryService = app(AssetHistoryService::class);
     
         // Dispatch the job to create asset history
-        CreateAssetHistoryJob::dispatch($asset, $authUserId, 'created', NULL, NULL, NULL);
+        CreateAssetHistoryJob::dispatch($asset, $authUserId, 'created', NULL, NULL, $assetHistoryService);
     }
 
     /**

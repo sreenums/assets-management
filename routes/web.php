@@ -5,6 +5,7 @@ use App\Http\Controllers\AssetManagementController;
 use App\Http\Controllers\AssetParameterController;
 use App\Http\Controllers\AssetTypeController;
 use App\Http\Controllers\CSVExportController;
+use App\Http\Controllers\CSVUploadController;
 use App\Http\Controllers\HardwareStandardController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LocationController;
@@ -110,6 +111,9 @@ Route::middleware([Authenticate::class])->group(function () {
 
     //Route for CSV Export
     Route::get('/export-csv', [CSVExportController::class, 'exportCsv'])->name('export.csv');
+
+    //Route for Asset CSV Upload
+    Route::post('/upload-asset-csv', [CSVUploadController::class, 'uploadAssetCsv'])->name('upload.asset.csv');
 
 });
 

@@ -19,7 +19,68 @@
     </p>
   @endif
   
-  <h2>Add New Asset</h2>
+  <!--<h2>Add New Asset</h2>-->
+  <div class="starter-template mt-6 mb-4 d-flex justify-content-between align-items-center">
+      <h3>Add New Asset</h3>
+      <div class="col-md-3">
+          <div class="form-group ms-auto">
+          <button id="upload-button" class="btn btn-light"
+                  data-upload-route="{{ route('upload.asset.csv') }}" onclick="submitForm()">
+              <i class="bi bi-file-earmark-arrow-up"></i> Upload Asset (.csv)
+          </button>
+          </div>
+      </div>
+  </div>
+
+  <!--Asset CSV Upload popup -->
+  <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">Add Assets - CSV File Upload</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="uploadContainer">
+              <form id="fileUploadForm" name="fileUploadForm" action="{{ route('upload.asset.csv') }}" method="POST" enctype="multipart/form-data">
+              @csrf
+                  <!-- Form fields for collecting data -->
+                  <!--<label class="form-label" for="importCsv">Upload</label>-->
+                  <input type="file" class="form-control" name="importCsv" id="importCsv" accept=".csv">
+                  
+                  
+                  <button type="submit" class="btn btn-primary mt-3">Upload</button>
+              </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+<!--Asset Upload Validation Error Popup -->
+  <div class="modal fade" id="errorMessageModal" tabindex="-1" aria-labelledby="errorMessageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorMessageModalLabel">Upload Validation Error</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="assetHistoryContainer" style="word-wrap: break-word">
+
+                  <div class="card">
+                      <div class="card-body" >
+                          <h5 class="card-title"><span class="validation-error-header mb-2" id="validationHead" name="validationHead" style="color: red;"></span></h5>
+                          <p class="card-text mt-4" id="errorMessageDetails" >Details about the validation error...</p>
+                      </div>
+                  </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
 
 
   <form method="POST" id="assetForm" class="was-validated" style="border: 1px solid #ccc; padding: 20px;" action="{{ route('assets.store'); }}" enctype="multipart/form-data">
@@ -127,11 +188,75 @@
     <div class="col-12 mt-3">
       <button type="submit" class="btn btn-primary">Submit</button>
     </div>
-  </form>
-
+  </form>    
 </div>
 
+
+
 <script type="text/javascript">
+
+  $(document).ready(function() {
+    $('#upload-button').click(function(e) {
+      e.preventDefault();
+      $('#validationHead').text("");
+      $('#fileUploadForm')[0].reset(); 
+      $('#uploadModal').modal('show');
+    });
+
+    //Upload
+    $('#fileUploadForm').submit(function(e) {
+      e.preventDefault();
+      var formData = new FormData(this);
+      
+      $.ajax({
+        type: 'POST',
+        url: $(this).attr('action'),
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+          if (response.error) {
+            //alert('Records not updated from row ' +response.row +', '+ response.errorMessage+'\n'+'Correct Errors and Try Again!');
+            var errorMessages = response.errorMessage;
+            var errorHtml = '';
+
+            errorHtml += '<ul>';
+            $('#validationHead').text("Records not uploaded from row - '" +response.row+"'.. Correct Errors and Try Again!");
+            errorMessages.forEach(function(history) {
+              errorHtml += '<li><span >' + history.trim() + '</span></li><br>';
+            });
+            errorHtml += '</ul>';
+            $('#errorMessageDetails').html(errorHtml);
+            $('#errorMessageModal').modal('show');
+
+            return;
+
+          }else if(response.fileTypeError){
+
+            alert(response.errorMessage);
+            return;
+            
+          }
+          else{
+            $('#uploadModal').modal('hide'); // Close the modal
+            alert(response.message);
+            window.location.reload();
+          }
+        },
+        error: function(xhr, status, error) {
+          // Handle error response
+          console.error(xhr.responseText);
+        }
+      });
+
+    });
+
+
+
+
+  });
+
+
 
   /**
    * Get the list of hardware standards for asset type
@@ -218,7 +343,12 @@
 
   });
 
-
+    //Form submit for csv export
+    function submitForm() {
+      //alert('submit exit');
+      return false;
+      //  document.getElementById('searchForm').submit();
+    }
 </script>
 
 

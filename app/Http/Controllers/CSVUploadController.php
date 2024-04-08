@@ -17,6 +17,11 @@ class CSVUploadController extends Controller
         $this->csvUploadService = $csvUploadService;
     }
 
+    public function index(Request $request)
+    {
+        return view('assets.bulk-add');
+    }
+
     /**
      * Uploads a CSV asset based on the given request.
      *

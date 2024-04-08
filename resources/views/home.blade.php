@@ -25,26 +25,23 @@
                 <a href="{{ route('assets.create'); }}" class="btn btn-outline-success">Add Asset</a>
             </div>
 
-            <div class="row align-items-center">List for
+            <!--<div class="row align-items-center">List for
                 <div class="col-md-3">
                     <select class="form-control" id="days" name="days">
                         <option value="">Day</option>
-                        <!-- Options for days -->
                     </select>
                 </div>
                 <div class="col-md-4">
                     <select class="form-control" id="months" name="months">
                         <option value="">Month</option>
-                        <!-- Options for months -->
                     </select>
                 </div>
                 <div class="col-md-3">
                     <select class="form-control" id="years" name="years">
                         <option value="">Year</option>
-                        <!-- Options for years -->
                     </select>
                 </div>
-            </div>
+            </div>-->
         </div>
         
         <div class="row mb-2 mt-4">
@@ -103,6 +100,24 @@
                     <input type="text" id="assetSearch" name="assetSearch" class="form-control" onkeypress="return /[a-zA-Z0-9]/.test(event.key)" placeholder="Asset tag or asset slno" value="{{ request('commentsCount') }}">
                 </div>
             </div>
+            <div class="row align-items-center col-md-4">
+                <label for="periodSearch">Age filter:</label>
+                <div class="col-md-3">
+                    <input type="text" id="periodSearch" name="periodSearch" class="form-control" onkeypress="return /[0-9]/i.test(event.key)" placeholder="No" value="{{ request('periodSearch') }}">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" id="periodFilter" name="periodFilter">
+                        <option value="days">Days</option>
+                        <option value="months">Months</option>
+                        <option value="years">Years</option>
+                    </select>
+                </div>
+                <!--<div class="col-md-3">
+                    <select class="form-control" id="years" name="years">
+                        <option value="">Year</option>
+                    </select>
+                </div>-->
+            </div>
         </div>
     </form>
     <br>
@@ -115,6 +130,7 @@
                     <th><a href="{{ route('hardware-standard.index') }}">Hardware Standard</a></th>
                     <th><a href="{{ route('technical-specs.index') }}">Technical Specification</a></th>
                     <th><a href="{{ route('users.index'); }}">User</a> / <a href="{{ route('locations.index'); }}">Location</a></th>
+                    <th>Age</th>
                     <th>Status</th>
                     <th>Asset Tag</th>
                     <th></th>
@@ -198,9 +214,9 @@
             serverSide: true,
             ajax: {
                 url: "{{ route('list.asset') }}",
-                data: function (d) {
-                    d.days = $('#days').val(); // Pass the default age filtering value
-                }
+                // data: function (d) {
+                //     d.days = $('#days').val(); // Pass the default age filtering value
+                // }
             },
             columns: [
                 { data: 'id', name: 'id' },
@@ -208,6 +224,7 @@
                 { data: 'hardware_standard', name: 'hardware_standard' },
                 { data: 'technicalSpecification', name: 'technical_specification_id' },
                 { data: 'location', name: 'location_id' },
+                { data: 'age', name: 'age' },
                 { data: 'status', name: 'status' },
                 { data: 'assetTag', name: 'asset_tag' },
                 {
@@ -244,9 +261,11 @@
             var technicalSpec = $('#technicalSpec').val();
             var statusId = $('#status').val();
             var assetSearch = $('#assetSearch').val();
-            var daySearch = $('#days').val();
-            var months = $('#months').val();
-            var years = $('#years').val();
+            // var daySearch = $('#days').val();
+            // var months = $('#months').val();
+            // var years = $('#years').val();
+            var periodSearch = $('#periodSearch').val();
+            var periodFilter = $('#periodFilter').val();
 
             var url = "{{ route('list.asset') }}?";
 
@@ -265,14 +284,20 @@
             if (assetSearch) {
                 url += "assetSearch=" + assetSearch + "&";
             }
-            if (daySearch) {
-                url += "days=" + daySearch + "&";
+            // if (daySearch) {
+            //     url += "days=" + daySearch + "&";
+            // }
+            // if (months) {
+            //     url += "months=" + months + "&";
+            // }
+            // if (years) {
+            //     url += "years=" + years + "&";
+            // }
+            if (periodSearch) {
+                url += "periodSearch=" + periodSearch + "&";
             }
-            if (months) {
-                url += "months=" + months + "&";
-            }
-            if (years) {
-                url += "years=" + years + "&";
+            if (periodFilter) {
+                url += "periodFilter=" + periodFilter + "&";
             }
 
             // Remove trailing '&' if exists
@@ -281,18 +306,19 @@
             $('#assets-table').DataTable().ajax.url(url).load();
         }
 
-        $('#assetSearch, #status, #assetType, #hardwareStandard, #technicalSpec, #days, #months, #years').on('keyup change', function() {
+        //$('#assetSearch, #status, #assetType, #hardwareStandard, #technicalSpec, #days, #months, #years').on('keyup change', function() {
+        $('#assetSearch, #status, #assetType, #hardwareStandard, #technicalSpec, #periodSearch, #periodFilter').on('keyup change', function() {
             
-            var daysValue = $('#days').val(); // Get the value of days dropdown
-            var monthsValue = $('#months').val(); // Get the value of months dropdown
-            var yearsValue = $('#years').val(); // Get the value of years dropdown
-            // Check if a value is present in days, months, and years
-            var isDateSpecified = daysValue || monthsValue || yearsValue;
+            // var daysValue = $('#days').val(); // Get the value of days dropdown
+            // var monthsValue = $('#months').val(); // Get the value of months dropdown
+            // var yearsValue = $('#years').val(); // Get the value of years dropdown
+            // // Check if a value is present in days, months, and years
+            // var isDateSpecified = daysValue || monthsValue || yearsValue;
 
-            if (!isDateSpecified) {
-                alert("Please select a date filter! Default filter applied for 7 days.");
-                $('#days').val(7);
-            }
+            // if (!isDateSpecified) {
+            //     alert("Please select a date filter! Default filter applied for 7 days.");
+            //     $('#days').val(7);
+            // }
 
             if ($(this).is('#assetType')) {
                 $("#hardwareStandard").html("<option value='all'>--Select--</option>");
@@ -336,35 +362,35 @@
 
     });
 
-    // Populate options for days
-    var daySelect = document.getElementById("days");
-    for (var i = 1; i <= 31; i++) {
-        var option = document.createElement("option");
-        option.text = i+" days";
-        option.value = i;
-            if (i == 7) {
-                option.selected = true; // Set option with value 7 as selected
-            }
-        daySelect.add(option);
-    }
+    // // Populate options for days
+    // var daySelect = document.getElementById("days");
+    // for (var i = 1; i <= 31; i++) {
+    //     var option = document.createElement("option");
+    //     option.text = i+" days";
+    //     option.value = i;
+    //         if (i == 7) {
+    //             option.selected = true; // Set option with value 7 as selected
+    //         }
+    //     daySelect.add(option);
+    // }
 
-    // Populate options for months
-    var monthSelect = document.getElementById("months");
-    for (var i = 1; i <= 12; i++) {
-        var option = document.createElement("option");
-        option.text = i + " months";
-        option.value = i;
-        monthSelect.add(option);
-    }
+    // // Populate options for months
+    // var monthSelect = document.getElementById("months");
+    // for (var i = 1; i <= 12; i++) {
+    //     var option = document.createElement("option");
+    //     option.text = i + " months";
+    //     option.value = i;
+    //     monthSelect.add(option);
+    // }
 
-    // Populate options for years
-    var yearSelect = document.getElementById("years");
-    for (var i = 1; i <= 5; i++) {
-        var option = document.createElement("option");
-        option.text = i+" years ";
-        option.value = i;
-        yearSelect.add(option);
-    }
+    // // Populate options for years
+    // var yearSelect = document.getElementById("years");
+    // for (var i = 1; i <= 5; i++) {
+    //     var option = document.createElement("option");
+    //     option.text = i+" years ";
+    //     option.value = i;
+    //     yearSelect.add(option);
+    // }
 
     //Form submit for csv export
     function submitForm() {

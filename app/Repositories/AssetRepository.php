@@ -69,21 +69,36 @@ class AssetRepository
 
         $ageFilter = now();
         //Age filtering based on days
-        if($request->has('days') && $request->days != '') {
-            $ageFilter = $ageFilter->subDays($request->days);
-        }
-        //Age filtering based on months
-        if($request->has('months') && $request->months != '') {
-            $ageFilter = $ageFilter->subMonths($request->months);
-        }
+        // if($request->has('days') && $request->days != '') {
+        //     $ageFilter = $ageFilter->subDays($request->days);
+        // }
+        // //Age filtering based on months
+        // if($request->has('months') && $request->months != '') {
+        //     $ageFilter = $ageFilter->subMonths($request->months);
+        // }
+        // //Age filtering based on years
+        // if($request->has('years') && $request->years != '') {
+        //     $ageFilter = $ageFilter->subYears($request->years);
+        // }
+        
         //Age filtering based on years
-        if($request->has('years') && $request->years != '') {
-            $ageFilter = $ageFilter->subYears($request->years);
+        if($request->has('periodSearch') && $request->periodSearch != '') {
+            if($request->has('periodFilter')){
+                if($request->periodFilter == 'years'){
+                    $ageFilter = $ageFilter->subYears($request->periodSearch);
+                }else if($request->periodFilter == 'months'){
+                    $ageFilter = $ageFilter->subMonths($request->periodSearch);
+                }else{
+                    $ageFilter = $ageFilter->subDays($request->periodSearch);
+                }
+            }
+            $assets->where('created_at', '>=', $ageFilter);
+            //$ageFilter = $ageFilter->subYears($request->years);
         }
         
-        if($request->has('days') || $request->has('months') || $request->has('years')) {
-            $assets->where('created_at', '>=', $ageFilter);
-        }
+        // if($request->has('days') || $request->has('months') || $request->has('years')) {
+        //     $assets->where('created_at', '>=', $ageFilter);
+        // }
 
         // Sorting based on ID column
         if ($request->has('order')) {

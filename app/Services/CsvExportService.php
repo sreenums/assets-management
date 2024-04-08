@@ -1,9 +1,17 @@
 <?php
 
 namespace App\Services;
+use App\Services\AssetService;
 
 class CsvExportService
 {
+
+    protected $assetService;
+
+    public function __construct(AssetService $assetService)
+    {
+        $this->assetService = $assetService;
+    }
 
     /**
      * Get the headers for exporting data as a CSV file.
@@ -71,7 +79,7 @@ class CsvExportService
             fputcsv($file, array('Period of Filtering:', $period));
 
             // Data headers
-            fputcsv($file, array('Asset Tag', 'Serial Number', 'Asset Type', 'Hardware Standard', 'Technical Specification','Purchase Order', 'User', 'Location','Status'));
+            fputcsv($file, array('Asset Tag', 'Serial Number', 'Asset Type', 'Hardware Standard', 'Technical Specification','Purchase Order','Asset Age', 'User', 'Location','Status'));
 
             foreach ($assets as $row) {
                 $username = ''; $location = '';
@@ -81,7 +89,9 @@ class CsvExportService
                 if($row->location){
                     $location = $row->location->name;
                 }
-                fputcsv($file, array($row->asset_tag, $row->serial_no, $row->type->type, $row->hardwareStandard->description, $row->technicalSpecification->description, $row->purchase_order, $username, $location, $row->status_text));
+                $assetAge = $this->assetService->getAssetAge($row->created_at);
+                
+                fputcsv($file, array($row->asset_tag, $row->serial_no, $row->type->type, $row->hardwareStandard->description, $row->technicalSpecification->description, $row->purchase_order, $assetAge, $username, $location, $row->status_text));
             }
             fclose($file);
         };

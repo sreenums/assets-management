@@ -113,6 +113,7 @@ Route::middleware([Authenticate::class])->group(function () {
     Route::get('/export-csv', [CSVExportController::class, 'exportCsv'])->name('export.csv');
 
     //Route for Asset CSV Upload
+    Route::get('/upload-form-csv', [CSVUploadController::class, 'index'])->name('upload.form.csv');
     Route::post('/upload-asset-csv', [CSVUploadController::class, 'uploadAssetCsv'])->name('upload.asset.csv');
 
 });

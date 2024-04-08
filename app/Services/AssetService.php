@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\AssetRepository;
+use DateTime;
 
 class AssetService
 {
@@ -89,8 +90,6 @@ class AssetService
         return $this->assetRepository->deleteAsset($asset);
     }
 
-
-
     /**
      * Get the list of assets with type, hardware, standard, technical spec, status, and location.
      *
@@ -130,12 +129,15 @@ class AssetService
                 $location = $asset->location->name;
             }
 
+            $ageDescription = $this->getAssetAge($asset->created_at);
+
             return [
                 'id' => $asset->id,
                 'type' => $asset->type->type,
                 'hardware_standard' => $asset->hardwareStandard->description,
                 'technicalSpecification' => $asset->technicalSpecification->description,
                 'location' => $location,
+                'age' => $ageDescription,
                 'assetTag' => $asset->asset_tag,
                 'status' => $asset->status_text,
             ];
@@ -159,6 +161,37 @@ class AssetService
     public function loadAsset($asset)
     {
         return $this->assetRepository->loadAsset($asset);
+    }
+
+    /**
+     * Generate age
+     * 
+     * @param $assetCreateDate - asset create date
+     * @return age description
+     */
+    public function getAssetAge($assetCreateDate)
+    {
+        // Given date string to DateTime object
+        $assetCreateDate = new DateTime($assetCreateDate);
+
+        // Get current date as a DateTime object
+        $currentDate = new DateTime();
+
+        $ageDescription = '';
+        $dateInterval = $assetCreateDate->diff($currentDate);
+        $daysDifference = $dateInterval->days;
+        if($daysDifference == 0) {
+            $ageDescription = '1 Day';
+        }
+        if($daysDifference <= 30 && $daysDifference > 0){
+            $ageDescription = $daysDifference.' days ago';
+        }
+        if($daysDifference > 30){
+            $quotientValue = floor($daysDifference / 30);
+            $ageDescription = $quotientValue.' months ago';
+        }
+
+        return $ageDescription;
     }
        
 }

@@ -4,7 +4,12 @@
 
 @section('content')
 <br>
-
+<style>
+    .error-row {
+        background-color: #ffe6e6; /* Light red background */
+        color: #ff0000; /* Red text color */
+    }
+</style>
 <div class="container mt-5">
   <div class="mt-3">
     <a href="{{ route('assets.create') }}" class="btn btn-dark">Back</a>
@@ -17,107 +22,48 @@
                     File Upload
                 </div>
                 <div class="card-body">
-                    <form action="upload.php" method="POST" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('upload.asset.csv') }}" id="fileUploadForm" name="fileUploadForm" enctype="multipart/form-data">
+                    @csrf
                         <div class="form-group">
-                            <label for="fileInput">Choose File:</label>
-                            <input type="file" class="form-control-file" id="fileInput" name="fileInput">
+                            <label for="importCsv">Choose File:</label>
+                            <input type="file" class="form-control-file" id="importCsv" name="importCsv">
                         </div>
-                        <button type="button" class="btn btn-primary mt-2" onclick='handleFile()'>Submit</button>
+                        <button type="submit" class="btn btn-primary mt-2" onclick='appendFile();'>Submit</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-  <!--<table class="table mt-3">
-    <tr id="totalRecordsCnt">#</tr>
-    <thead>
-        <tr>
-            <th>Asset Tag</th>
-            <th>Serial No</th>
-            <th>Type ID</th>
-            <th>Hardware Standard ID</th>
-            <th>Technical Specification ID</th>
-            <th>Purchase Order</th>
-            <th>Location ID</th>
-            <th>Status</th>
-            <th>Location</th>
-            <th>Remove</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>A032765</td>
-            <td>SL676855</td>
-            <td>2</td>
-            <td>1</td>
-            <td>3</td>
-            <td>PO12335</td>
-            <td>1</td>
-            <td>1</td>
-            <td>ABCD</td>
-            <td><button type="button" class="btn-close" aria-label="Close"></button>
-        </tr>
-        
-    </tbody>
-  </table>-->
   <span id="totalRecordsCnt"></span>
   <div id="tableContainer"></div>
-  <button type="button" class="btn btn-primary mt-2" id="uploadButton" name="uploadButton" style="display: none;">Upload</button>
+  <div id="uploadConfirm" name="uploadConfirm" style="display: none;" >
+  <div class="mt-3"><b>Validation Failed (Will not be updated)</b></div>
+  <table class="table mt-3" id="failedRecordsTable"></table>
+  <div class="mt-3"><b>Validation Success</b></div>
+  <table class="table mt-3" id="successfulRecordsTable"></table>
+  <form action="{{ route('save.upload.csv') }}" id="fileSaveForm" name="fileSaveForm">
+    <button type="submit" class="btn btn-primary mt-2" id="uploadButton" name="uploadButton" >Upload</button>
+  </form>
+  </div>
 </div>
 
 <script type="text/javascript">
 
-function handleFile() {
-    var fileInput = document.getElementById('fileInput');
-    var file = fileInput.files[0];
-    var reader = new FileReader(); 
+function appendFile() {
+    errorRows = [];
+    // Get the file input element from the source form
+    var fileInput = document.getElementById('importCsv');
 
-    reader.onload = function(e) {
-        var fileContent = e.target.result; //console.log(fileContent); return;
-        displayFileContent(fileContent);
-    }
+    // Get the destination form
+    var destinationForm = document.getElementById('fileSaveForm');
 
-    reader.readAsText(file);
-}
+    // Clone the file input element
+    var clonedFileInput = fileInput.cloneNode(true);
+    clonedFileInput.style.display = 'none';
 
-function displayFileContent(content) {
-    var rows = content.trim().split('\n'); // Split content into rows
-    var tableHtml = '<table class="table mt-3"><thead><tr>';
-
-    // Assuming the first row contains column headers
-    var headers = rows[0].split(',');
-
-    // Generate table headers
-    headers.forEach(function(header) {
-        tableHtml += '<th>' + header + '</th>';
-    });
-    tableHtml += '<th>Remove</th>';
-
-    tableHtml += '</tr></thead><tbody>';
-
-    // Start from index 1 to skip the header row
-    for (var i = 1; i < rows.length; i++) {
-        var rowData = rows[i].split(',');
-
-        tableHtml += '<tr>';
-
-        rowData.forEach(function(data) {
-            tableHtml += '<td>' + data + '</td>';
-        });
-        tableHtml += '<td><button type="button" class="btn-close" aria-label="Close" onclick="closeRow(this); removedRow(' + i + ');" ></button></td>';
-        tableHtml += '</tr>';
-    }
-
-    tableHtml += '</tbody></table>';
-
-    // Display the table on the page
-    document.getElementById('tableContainer').innerHTML = tableHtml;
-    document.getElementById('totalRecordsCnt').innerText = '# Records (' + (rows.length - 1) + ')';
-
-    if(rows.length>0){
-        document.getElementById('uploadButton').style.display = 'block';
-    }
+    // Append the cloned file input to the destination form
+    destinationForm.appendChild(clonedFileInput);
 
 }
 
@@ -127,116 +73,196 @@ function closeRow(button) {
     row.remove(); // Remove the row from the table
 }
 
+let removedRows = [];
 function removedRow(row){
-  
+    
+    if (!errorRows.includes(row)) {
+                    errorRows.push(row);
+                    console.log(errorRows);
+    }
+    let totalCountText = document.getElementById('totalRecordsCnt').innerText;
+
+    // Extract the count from the text content
+    let totalCount = parseInt(totalCountText.match(/\d+/)[0]) - 1;
+
+    if(totalCount <= 0){
+        document.getElementById('uploadButton').disabled = 'true';
+    }
+    document.getElementById('totalRecordsCnt').innerText = '# Records (' + (totalCount) + ')';
 }
-  /**
-   * Get the list of hardware standards for asset type
-   */
-  $(document).ready(function(){
-      $(document).on('change','#assetType', function() {
-        $("#hardwareStandard").html("<option value=''>--Select--</option>");
-        $("#technicalSpec").html("<option value=''>--Select--</option>");
-          let assetType = $(this).val();
-          //$('#subcategory_info').show();
-          $.ajax({
-              method: 'post',
-              url: "{{ route('get.type.hardwares') }}",
-              data: {
-                assetType: assetType
-              },
-              success: function(res) {
-                  if (res.status == 'success') {
-                      let all_options = "<option value=''>--Select--</option>";
-                      let subHardwareStandards = res.subHardwareStandards;
-                      $.each(subHardwareStandards, function(index, value) {
-                          all_options += "<option value='" + value.id +
-                              "'>" + value.description + "</option>";
-                      });
 
-                      $("#hardwareStandard").html(all_options);
-                  }
-              }
-          })
+$(document).ready(function() {
+    //Upload
+    $('#fileUploadForm').submit(function(e) {
+    
+      e.preventDefault();
+      var formData = new FormData(this);
+      
+      $.ajax({
+        type: 'POST',
+        url: $(this).attr('action'),
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            if(response.fileTypeError){
+                alert(response.errorMessage);
+                $('#uploadButton').prop('disabled', true);
+                $('#fileUploadForm')[0].reset(); 
+                $('#fileSaveForm')[0].reset();
+                $('#uploadConfirm').empty();
+                $('#totalRecordsCnt').empty();
+                $('#uploadConfirm').hide();
+                return;
+            }else{
+                // Process the response and display data in table
+                displayData(response);
+            }
+
+        },
+        error: function(xhr, status, error) {
+          // Handle error response
+          console.error(xhr.responseText);
+        }
       });
 
-      $(document).on('change','#assetStatus', function() {
-      let assetStatus = $(this).val();
-      if (assetStatus == '2') {           //Assigned
-            //$("#assetLocation").html("<option value=''>User Selected</option>");
-            $.ajax({
-                method: 'post',
-                url: "{{ route('get.users') }}",
+    });
 
-                success: function(res) {
-                    if (res.status == 'success') {
-                        let all_options = "<option value=''>--Select--</option>";
-                        let users = res.users;
-                        $.each(users, function(index, value) {
-                            all_options += "<option value='" + value.id +
-                                "'>" + value.name + "</option>";
-                        });
+});
 
-                        $("#assetLocation").html(all_options);
-                    }
+$(document).ready(function() {
+    //Upload Save
+    $('#fileSaveForm').submit(function(e) {
+
+        let totalCountText = document.getElementById('totalRecordsCnt').innerText;
+        // Extract the count from the text content
+        let totalCount = parseInt(totalCountText.match(/\d+/)[0]);
+        if(totalCount <= 0){
+            alert('No Records to Upload!'); return false;
+        }
+    
+      e.preventDefault();
+        // Create a new FormData object
+        var formData = new FormData(this);
+
+        // Append the errorRows array to the FormData object
+        formData.append('errorRows', JSON.stringify(errorRows));
+      
+      $.ajax({
+        type: 'POST',
+        url: $(this).attr('action'),
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            alert(response.message);
+            $('#uploadButton').prop('disabled', true);
+            // $('#fileUploadForm')[0].reset(); 
+            // $('#fileSaveForm')[0].reset();
+            // $('#uploadConfirm').empty();
+            // $('#totalRecordsCnt').empty();
+            // $('#uploadConfirm').hide();
+        },
+        error: function(xhr, status, error) {
+          // Handle error response
+          console.error(xhr.responseText);
+        }
+      });
+
+    });
+
+});
+
+function displayData(data) {
+    var failedRecords = data.failedRecords;
+
+    var successfulRecords = data.successfulRecords;
+    if(successfulRecords.rows.length > 0){
+        document.getElementById('uploadButton').style.display = 'block';
+        document.getElementById('totalRecordsCnt').innerText = '# Records (' + (successfulRecords.rows.length) + ')';
+    }else{
+        document.getElementById('uploadButton').disabled = 'true';
+    }
+    
+    // Display failed records
+    displayRecords(failedRecords, '#failedRecordsTable');
+    
+    // Display successful records
+    displayRecords(successfulRecords, '#successfulRecordsTable');
+
+    document.getElementById('uploadConfirm').style.display = 'block';
+}
+
+let errorRows = [];
+function displayRecords(records, tableId) {
+    var table = $(tableId);
+    table.empty();
+    
+    // Create table header
+    var headerRow = $('<tr>');
+    records.header.forEach(function(header) {
+        headerRow.append($('<th>').text(header));
+    });
+    headerRow.append($('<th>').text("Remove"));
+    table.append(headerRow);
+    
+    
+    // Create table rows
+    records.rows.forEach(function(rowData) {
+        var hasError = '';
+        var row = $('<tr>');
+        records.header.forEach(function(header) {
+            row.append($('<td>').text(rowData.data[header]));
+            var errorMessages = []; // Array to store error messages
+
+            // Check if there are validation errors for the current row
+            if (rowData.errors && rowData.errors.length > 0) {
+                hasError = true; // Set the flag to true if errors exist
+                errorMessages = rowData.errors; // Store error messages
+                if (!errorRows.includes(rowData.row)) {
+                    errorRows.push(rowData.row);
                 }
-            });
-        } else {
-          $.ajax({
-                method: 'post',
-                url: "{{ route('get.locations') }}",
+            }
 
-                success: function(res) {
-                    if (res.status == 'success') {
-                        let all_options = "<option value=''>--Select--</option>";
-                        let locations = res.locations;
-                        $.each(locations, function(index, value) {
-                            all_options += "<option value='" + value.id +
-                                "'>" + value.name + "</option>";
-                        });
+            // Add a CSS class to the row based on the presence of errors
+            if (hasError) {
+                row.addClass('error-row');
 
-                        $("#assetLocation").html(all_options);
+                // Hover event handler to display error messages on row hover
+                row.hover(
+                    function() { // Mouse enter
+                        var errorText = errorMessages.join(', '); // Concatenate error messages
+                        $(this).attr('title', errorText); // Set error messages as title attribute
+                    },
+                    function() { // Mouse leave
+                        $(this).removeAttr('title'); // Remove title attribute
                     }
-                }
-          });
-        } 
-
-      });
+                );
+            }
 
 
-  });
+        });
+        
 
-  /**
-   * Get the list of technical specs for hardware standard
-   */
-  $(document).ready(function(){
-      $(document).on('change','#hardwareStandard', function() {
-          $("#technicalSpec").html("<option value=''>--Select--</option>");
-          let hardwareStandard = $(this).val();
-          
-          $.ajax({
-              method: 'post',
-              url: "{{ route('get.hardware.technical.spec') }}",
-              data: {
-                hardwareStandard: hardwareStandard
-              },
-              success: function(res) {
-                  if (res.status == 'success') {
-                      let all_options = "<option value=''>--Select--</option>";
-                      let subTechnicalSpecs = res.subTechnicalSpecs;
-                      $.each(subTechnicalSpecs, function(index, value) {
-                          all_options += "<option value='" + value.id +
-                              "'>" + value.description + "</option>";
-                      });
+        // Append the close button to the row
+        var removeButton = $('<button>', {
+            type: 'button',
+            class: 'btn-close',
+            'aria-label': 'Close',
+            click: function() {
+                closeRow(this);
+                removedRow(rowData.row); // Assuming i is defined somewhere in your code
+            }
+        });
+        var removeButtonCell = $('<td>').append(removeButton);
+        row.append(removeButtonCell);
 
-                      $("#technicalSpec").html(all_options);
-                  }
-              }
-          })
-      });
+        table.append(row);
+    });
 
-  });
+    console.log(errorRows);
 
+}
 
 </script>
 

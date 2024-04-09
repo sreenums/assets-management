@@ -115,6 +115,7 @@ Route::middleware([Authenticate::class])->group(function () {
     //Route for Asset CSV Upload
     Route::get('/upload-form-csv', [CSVUploadController::class, 'index'])->name('upload.form.csv');
     Route::post('/upload-asset-csv', [CSVUploadController::class, 'uploadAssetCsv'])->name('upload.asset.csv');
+    Route::post('/upload-save-csv', [CSVUploadController::class, 'saveUploadData'])->name('save.upload.csv');
 
 });
 

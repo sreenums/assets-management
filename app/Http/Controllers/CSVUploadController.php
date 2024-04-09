@@ -47,4 +47,10 @@ class CSVUploadController extends Controller
         return $this->csvUploadService->uploadCsv($request);
         
     }
+
+    public function saveUploadData(Request $request)
+    {
+        return $this->csvUploadService->saveUploadData($request);
+    }
+
 }

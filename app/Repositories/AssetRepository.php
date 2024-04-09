@@ -26,7 +26,7 @@ class AssetRepository
 
     public function createAssetUpload($data)
     {
-        return $this->model->updateOrCreate($data);
+        return $this->model->insert($data);
     }
 
     public function getAssetsList()

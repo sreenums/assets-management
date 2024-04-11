@@ -24,10 +24,11 @@
       <h3>Add New Asset</h3>
       <div class="col-md-3">
           <div class="form-group ms-auto">
-          <button id="upload-button" class="btn btn-light"
-                  data-upload-route="{{ route('upload.asset.csv') }}" onclick="submitForm()">
+            <a href="{{ route('upload.form.csv') }}" class="btn btn-light"><i class="bi bi-file-earmark-arrow-up"></i> Upload Asset (.csv)</a>
+          <!--<button id="upload-button" class="btn btn-light"
+                  data-upload-route="{{ route('upload.form.csv') }}" onclick="submitForm()">
               <i class="bi bi-file-earmark-arrow-up"></i> Upload Asset (.csv)
-          </button>
+          </button>-->
           </div>
       </div>
   </div>
@@ -196,12 +197,12 @@
 <script type="text/javascript">
 
   $(document).ready(function() {
-    $('#upload-button').click(function(e) {
-      e.preventDefault();
-      $('#validationHead').text("");
-      $('#fileUploadForm')[0].reset(); 
-      $('#uploadModal').modal('show');
-    });
+    // $('#upload-button').click(function(e) {
+    //   e.preventDefault();
+    //   $('#validationHead').text("");
+    //   $('#fileUploadForm')[0].reset(); 
+    //   $('#uploadModal').modal('show');
+    // });
 
     //Upload
     $('#fileUploadForm').submit(function(e) {

@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Jobs\CreateAssetHistoryJob;
+use App\Jobs\UpdateAssetHistoryJob;
 use App\Services\AssetHistoryService;
 use App\Models\Asset;
 
@@ -21,7 +22,7 @@ class AssetObserver
         $assetHistoryService = app(AssetHistoryService::class);
     
         // Dispatch the job to create asset history
-        CreateAssetHistoryJob::dispatch($asset, $authUserId, 'created', NULL, NULL, $assetHistoryService);
+        CreateAssetHistoryJob::dispatch($asset, $authUserId, $assetHistoryService);
     }
 
     /**
@@ -38,7 +39,7 @@ class AssetObserver
         $assetHistoryService = app(AssetHistoryService::class);
 
         // Dispatch the job to update asset history
-        CreateAssetHistoryJob::dispatch($asset, $authUserId, 'updated', $changedFieldsUpdate, $updateOriginalFields, $assetHistoryService);
+        UpdateAssetHistoryJob::dispatch($asset, $authUserId, $changedFieldsUpdate, $updateOriginalFields, $assetHistoryService);
     }
 
     /**

@@ -42,7 +42,7 @@
   <table class="table mt-3" id="failedRecordsTable"></table>
   <div class="mt-3"><b>Validation Success</b></div>
   <table class="table mt-3" id="successfulRecordsTable"></table>
-  <form action="{{ route('save.upload.csv') }}" id="fileSaveForm" name="fileSaveForm">
+  <form action="{{ route('save.upload.csv') }}" id="fileSaveForm" name="fileSaveForm" >
     <button type="submit" class="btn btn-primary mt-2" id="uploadButton" name="uploadButton" >Upload</button>
   </form>
   </div>
@@ -51,6 +51,9 @@
 <script type="text/javascript">
 
 function appendFile() {
+    $('#uploadButton').text('Upload');
+    $('#uploadButton').prop('disabled', false);
+    $('#totalRecordsCnt').text('');
     errorRows = [];
     // Get the file input element from the source form
     var fileInput = document.getElementById('importCsv');
@@ -58,11 +61,11 @@ function appendFile() {
     // Get the destination form
     var destinationForm = document.getElementById('fileSaveForm');
 
-    // Clone the file input element
+    // get the file input element
     var clonedFileInput = fileInput.cloneNode(true);
     clonedFileInput.style.display = 'none';
 
-    // Append the cloned file input to the destination form
+    // Append the file input to the destination form
     destinationForm.appendChild(clonedFileInput);
 
 }
@@ -77,8 +80,7 @@ let removedRows = [];
 function removedRow(row){
     
     if (!errorRows.includes(row)) {
-                    errorRows.push(row);
-                    console.log(errorRows);
+        errorRows.push(row);
     }
     let totalCountText = document.getElementById('totalRecordsCnt').innerText;
 
@@ -106,13 +108,8 @@ $(document).ready(function() {
         processData: false,
         success: function(response) {
             if(response.fileTypeError){
-                alert(response.errorMessage);
-                $('#uploadButton').prop('disabled', true);
-                $('#fileUploadForm')[0].reset(); 
-                $('#fileSaveForm')[0].reset();
-                $('#uploadConfirm').empty();
-                $('#totalRecordsCnt').empty();
-                $('#uploadConfirm').hide();
+                alert(response.fileTypeError +' '+ response.errorMessage);
+                window.location.reload();
                 return;
             }else{
                 // Process the response and display data in table
@@ -134,50 +131,52 @@ $(document).ready(function() {
     //Upload Save
     $('#fileSaveForm').submit(function(e) {
 
-        let totalCountText = document.getElementById('totalRecordsCnt').innerText;
-        // Extract the count from the text content
-        let totalCount = parseInt(totalCountText.match(/\d+/)[0]);
-        if(totalCount <= 0){
-            alert('No Records to Upload!'); return false;
-        }
-    
-      e.preventDefault();
-        // Create a new FormData object
-        var formData = new FormData(this);
+        if (!confirm('Do you want to upload the validated file? Failed records will not be saved!')) {
+            e.preventDefault();
+            return false;
+        }else{
 
-        // Append the errorRows array to the FormData object
-        formData.append('errorRows', JSON.stringify(errorRows));
-      
-      $.ajax({
-        type: 'POST',
-        url: $(this).attr('action'),
-        data: formData,
-        contentType: false,
-        processData: false,
-        success: function(response) {
-            alert(response.message);
-            $('#uploadButton').prop('disabled', true);
-            // $('#fileUploadForm')[0].reset(); 
-            // $('#fileSaveForm')[0].reset();
-            // $('#uploadConfirm').empty();
-            // $('#totalRecordsCnt').empty();
-            // $('#uploadConfirm').hide();
-        },
-        error: function(xhr, status, error) {
-          // Handle error response
-          console.error(xhr.responseText);
+            let totalCountText = document.getElementById('totalRecordsCnt').innerText;
+            // Extract the count from the text content
+            let totalCount = parseInt(totalCountText.match(/\d+/)[0]);
+                if(totalCount <= 0){
+                    alert('No Records to Upload!'); return false;
+                }
+        
+            e.preventDefault();
+            // Create a new FormData object
+            var formData = new FormData(this);
+
+            // Append the errorRows array to the FormData object
+            formData.append('errorRows', JSON.stringify(errorRows));
+        
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    alert(response.message);
+                    $('#uploadButton').text('Validated Records Uploaded');
+                    $('#uploadButton').prop('disabled', true);
+                },
+                error: function(xhr, status, error) {
+                // Handle error response
+                console.error(xhr.responseText);
+                }
+            });
         }
-      });
 
     });
-
+    
 });
 
 function displayData(data) {
     var failedRecords = data.failedRecords;
 
     var successfulRecords = data.successfulRecords;
-    if(successfulRecords.rows.length > 0){
+    if(successfulRecords.rows.length >= 1){
         document.getElementById('uploadButton').style.display = 'block';
         document.getElementById('totalRecordsCnt').innerText = '# Records (' + (successfulRecords.rows.length) + ')';
     }else{
@@ -203,7 +202,9 @@ function displayRecords(records, tableId) {
     records.header.forEach(function(header) {
         headerRow.append($('<th>').text(header));
     });
-    headerRow.append($('<th>').text("Remove"));
+    if(tableId == '#successfulRecordsTable'){
+        headerRow.append($('<th>').text("Remove"));
+    }
     table.append(headerRow);
     
     
@@ -213,12 +214,12 @@ function displayRecords(records, tableId) {
         var row = $('<tr>');
         records.header.forEach(function(header) {
             row.append($('<td>').text(rowData.data[header]));
-            var errorMessages = []; // Array to store error messages
+            var errorMessages = [];
 
             // Check if there are validation errors for the current row
             if (rowData.errors && rowData.errors.length > 0) {
-                hasError = true; // Set the flag to true if errors exist
-                errorMessages = rowData.errors; // Store error messages
+                hasError = true;
+                errorMessages = rowData.errors;
                 if (!errorRows.includes(rowData.row)) {
                     errorRows.push(rowData.row);
                 }
@@ -231,11 +232,11 @@ function displayRecords(records, tableId) {
                 // Hover event handler to display error messages on row hover
                 row.hover(
                     function() { // Mouse enter
-                        var errorText = errorMessages.join(', '); // Concatenate error messages
+                        var errorText = errorMessages.join(', ');
                         $(this).attr('title', errorText); // Set error messages as title attribute
                     },
                     function() { // Mouse leave
-                        $(this).removeAttr('title'); // Remove title attribute
+                        $(this).removeAttr('title');
                     }
                 );
             }
@@ -243,24 +244,23 @@ function displayRecords(records, tableId) {
 
         });
         
-
-        // Append the close button to the row
-        var removeButton = $('<button>', {
-            type: 'button',
-            class: 'btn-close',
-            'aria-label': 'Close',
-            click: function() {
-                closeRow(this);
-                removedRow(rowData.row); // Assuming i is defined somewhere in your code
-            }
-        });
-        var removeButtonCell = $('<td>').append(removeButton);
-        row.append(removeButtonCell);
+        if(tableId == '#successfulRecordsTable'){
+            // Append the close button to the row
+            var removeButton = $('<button>', {
+                type: 'button',
+                class: 'btn-close',
+                'aria-label': 'Close',
+                click: function() {
+                    closeRow(this);
+                    removedRow(rowData.row);
+                }
+            });
+            var removeButtonCell = $('<td>').append(removeButton);
+            row.append(removeButtonCell);
+        }
 
         table.append(row);
     });
-
-    console.log(errorRows);
 
 }
 

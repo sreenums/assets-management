@@ -65,8 +65,11 @@ class AssetTypeController extends Controller
             return response()->json(['success' => 'Asset type Deleted Successfully!']);
             
         } catch (QueryException $e) {
-            // Check if the exception is due to a unique constraint violation
-            if ($e->getCode() === '23000') {
+            
+            $integrityConstraintViolation = config('custom.sqlErrorCodes.integrityConstraintViolation');
+
+            // Check if the exception is due to a Integrity constraint violation
+            if ($e->getCode() === $integrityConstraintViolation) {
                 return response()->json(['error' => 'Hardware standard is added for the Asset type, Please delete it first!!']);
             }else{
                 return response()->json(['error' => 'An unexpected error occurred!!']);

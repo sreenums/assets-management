@@ -24,7 +24,7 @@ class AssetRepository
         return $asset->update($locationData);
     }
 
-    public function createAssetUpload($data)
+    public function insertAssetUpload($data)
     {
         return $this->model->insert($data);
     }
